@@ -244,5 +244,18 @@
     function refreshList() { document.getElementById('linesContainer').innerHTML = ""; lineOrder.forEach(id => renderLine(id, dataStore[id])); }
     function fmtTime(d) { return d.getHours() + ":" + d.getMinutes().toString().padStart(2, '0'); }
 </script>
+    <!-- ↓↓↓ これを </body> のすぐ上に貼り付けてください ↓↓↓ -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            // GitHub Pages用に必ず ./ を付けてください
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW登録成功', reg.scope))
+                .catch(err => console.log('SW登録失敗', err));
+        });
+    }
+</script>
+<!-- ↑↑↑ ここまで ↑↑↑ -->
 </body>
 </html>
+

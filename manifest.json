@@ -1,8 +1,8 @@
 {
-  "name": "高度生産管理システム v5.1",
-  "short_name": "生産管理",
+  "name": "武蔵野 生産性管理 v6.4",
+  "short_name": "生産性管理",
   "description": "リアルタイム残数管理・予測システム",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f0f0f0",
   "theme_color": "#007bff",

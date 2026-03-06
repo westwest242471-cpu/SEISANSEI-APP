@@ -3,54 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v5.4</title>
+    <title>武蔵野 生産性管理 v5.5</title>
+    
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="apple-touch-icon" href="icon-192.png">
+
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
     <style>
         body { font-family: sans-serif; margin: 4px; background-color: #f0f0f0; font-size: 13px; line-height: 1.1; }
-        .sortable-ghost { opacity: 0.3; background-color: #e1f5fe !important; border: 2px dashed #007bff; }
-        .line-container { background: white; padding: 6px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 8px; border-left: 4px solid #007bff; touch-action: auto; }
+        
+        /* スマホの長押し誤作動防止と並び替えデザイン */
+        .line-container { 
+            background: white; padding: 6px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+            margin-bottom: 8px; border-left: 4px solid #007bff;
+            /* 長押し時にテキスト選択されないようにする（重要） */
+            -webkit-user-select: none; user-select: none; 
+        }
+        /* 入力欄などはテキスト選択を許可する */
+        input, button, td, th, span { -webkit-user-select: auto; user-select: auto; }
+        .sortable-ghost { opacity: 0.4; background-color: #e1f5fe !important; border: 2px dashed #007bff; }
+        
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
-        .line-title { font-size: 14px; font-weight: bold; color: #007bff; text-decoration: underline; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .status-badge { padding: 1px 4px; border-radius: 3px; font-weight: bold; font-size: 10px; border: 1.5px solid; }
+        .line-info { display: flex; align-items: center; gap: 3px; }
+        .line-title { font-size: 14px; font-weight: bold; color: #007bff; text-decoration: underline; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; cursor: pointer; }
+        .status-badge { padding: 1px 4px; border-radius: 3px; font-weight: bold; font-size: 10px; white-space: nowrap; border: 1.5px solid; }
         .avg-badge { border-color: #28a745; color: #28a745; background: #fafffa; }
         :root { --ctrl-height: 40px; }
         .controls { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
         input[type="number"] { width: 100px; padding: 0 8px; border: 2px solid #007bff; border-radius: 4px; font-size: 18px; font-weight: bold; height: var(--ctrl-height); box-sizing: border-box; }
-        .btn-record { padding: 0 12px; border-radius: 4px; border: none; font-size: 14px; font-weight: bold; background: #28a745; color: white; height: var(--ctrl-height); }
-        .prediction-display { flex-grow: 1; background: #fff9db; border: 1.5px solid #fab005; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: var(--ctrl-height); }
-        .eta-time { font-size: 16px; font-weight: bold; }
+        input::placeholder { color: #ccc; font-weight: normal; font-size: 11px; }
+        .btn-record { padding: 0 12px; cursor: pointer; border-radius: 4px; border: none; font-size: 14px; font-weight: bold; background: #28a745; color: white; height: var(--ctrl-height); display: flex; align-items: center; }
+        .prediction-display { flex-grow: 1; background: #fff9db; border: 1.5px solid #fab005; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: var(--ctrl-height); box-sizing: border-box; }
+        .eta-label { font-size: 8px; color: #865c00; margin-bottom: -3px; font-weight: bold; }
+        .eta-time { font-size: 16px; font-weight: bold; color: #000; }
         .target-needed { font-size: 9px; font-weight: bold; color: #e67e22; background: #fff5e6; width: 100%; text-align: center; border-top: 1px solid #ffd8a8; }
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid #eee; }
-        th, td { border: 1px solid #eee; padding: 2px 1px; text-align: center; height: 24px; }
-        th { background: #f8f8f8; font-size: 9px; color: #888; }
-        .btn-blue { background: #007bff; color: white; width: 100%; margin-bottom: 6px; padding: 8px; font-size: 13px; font-weight: bold; border: none; border-radius: 4px; }
-        .btn-orange { background: #f39c12; color: white; border: none; border-radius: 3px; padding: 4px; font-size: 10px; }
-        .btn-gray { background: #666; color: white; border: none; border-radius: 3px; padding: 4px; font-size: 10px; }
-        .btn-red { background: #dc3545; color: white; border: none; border-radius: 3px; padding: 4px; font-size: 10px; }
-        .btn-csv { background: #555; color: white; border: none; border-radius: 3px; padding: 4px; font-size: 10px; }
-        .warn-blink { background: #ffc9c9 !important; animation: blink 0.8s step-end infinite; }
+        table { width: 100%; border-collapse: collapse; margin-top: 2px; table-layout: fixed; border: 1px solid #eee; }
+        th, td { border: 1px solid #eee; padding: 2px 1px; text-align: center; line-height: 1.2; height: 24px; }
+        th { background: #f8f8f8; font-size: 9px; color: #888; font-weight: normal; }
+        td { font-size: 12px; }
+        .highlight { font-weight: bold; color: #d9534f; font-size: 13px; }
+        .btn-del-row { background: none; color: #ddd; font-size: 16px; padding: 0; cursor: pointer; border: none; }
+        .target-setup-area { background: #fffbe6; border: 1px solid #ffe58f; padding: 4px; margin-bottom: 4px; border-radius: 4px; display: none; align-items: center; justify-content: center; gap: 4px; }
+        button { padding: 4px 6px; cursor: pointer; border-radius: 3px; border: none; font-size: 10px; font-weight: bold; }
+        .btn-blue { background: #007bff; color: white; width: 100%; margin-bottom: 6px; padding: 8px; font-size: 13px; }
+        .btn-orange { background: #f39c12; color: white; }
+        .btn-gray { background: #666; color: white; }
+        .btn-red { background: #dc3545; color: white; }
+        .btn-csv { background: #555; color: white; }
+        .warn-blink { background: #ffc9c9 !important; color: #f03e3e !important; animation: blink 0.8s step-end infinite; }
         @keyframes blink { 50% { opacity: 0.6; } }
     </style>
 </head>
 <body>
+
 <button class="btn-blue" onclick="addNewLine()">＋ 新しいラインを追加</button>
 <div id="linesContainer"></div>
+
 <script>
     let dataStore = JSON.parse(localStorage.getItem('lineAppData')) || {};
     let lineOrder = JSON.parse(localStorage.getItem('lineAppOrder')) || [];
-    window.onload = function() { refreshList(); initSortable(); };
-    function saveData() { localStorage.setItem('lineAppData', JSON.stringify(dataStore)); localStorage.setItem('lineAppOrder', JSON.stringify(lineOrder)); }
-    
+
+    window.onload = function() { 
+        refreshList(); 
+        initSortable();
+    };
+
+    function saveData() { 
+        localStorage.setItem('lineAppData', JSON.stringify(dataStore)); 
+        localStorage.setItem('lineAppOrder', JSON.stringify(lineOrder)); 
+    }
+
+    // 長押し並び替えの設定（スマホ最適化済み）
     function initSortable() {
         const el = document.getElementById('linesContainer');
         Sortable.create(el, {
-            delay: 1000, // 1000ミリ秒（1秒）長押しでドラッグ開始
-            delayOnTouchOnly: true, // スマホのタッチ時のみディレイを適用
-            touchStartThreshold: 5, // 5px以上指が動いたらキャンセル（誤作動防止）
+            delay: 400, // スマホで0.4秒長押しすると動かせる
+            delayOnTouchOnly: true,
+            touchStartThreshold: 5, // 指のブレを許容
             animation: 150,
             ghostClass: 'sortable-ghost',
             onEnd: function() {
@@ -61,32 +93,189 @@
     }
 
     function addNewLine() { 
-        const name = prompt("ライン名"); if (!name) return; 
+        const lineName = prompt("ライン名を入力してください"); 
+        if (!lineName) return; 
         const id = 'line-' + Date.now(); 
-        dataStore[id] = { name: name, started: false, logs: [], targetTime: "" }; 
-        lineOrder.unshift(id); saveData(); refreshList(); 
+        dataStore[id] = { name: lineName, started: false, logs: [], targetTime: "" }; 
+        lineOrder.unshift(id); // 必ず一番上に追加される
+        saveData();
+        refreshList(); 
     }
 
     function renderLine(id, data) {
-        const html = `<div class="line-container" id="${id}"><header><div class="line-info"><span class="line-title" onclick="renameLine('${id}')">${data.name}</span></div><div style="display:flex; gap:2px;"><div class="status-badge avg-badge">平均:<span id="${id}-headTotal">0.0</span></div><button class="btn-orange" onclick="toggleTarget('${id}')">目標</button><button class="btn-csv" onclick="exportCSV('${id}')">CSV</button><button class="btn-gray" onclick="resetLine('${id}')">初期化</button><button class="btn-red" onclick="removeLine('${id}')">削除</button></div></header><div id="${id}-setup" class="controls" style="display: ${data.started ? 'none' : 'flex'}"><input type="number" id="${id}-startInput" placeholder="開始残数" style="flex-grow:1;"><button class="btn-blue" style="width:auto; margin:0; height:40px;" onclick="startLine('${id}')">開始</button></div><div id="${id}-main" style="display: ${data.started ? 'block' : 'none'}"><div id="${id}-targetSetup" style="display:none; background:#fffbe6; padding:4px; margin-bottom:4px; border-radius:4px; align-items:center; justify-content:center; gap:4px;"><input type="time" id="${id}-targetInput" value="${data.targetTime || ''}" onchange="setTargetTime('${id}', this.value)"><button class="btn-gray" onclick="setTargetTime('${id}', '')">解除</button></div><div class="controls"><input type="number" id="${id}-currInput" placeholder="残数入力"><button class="btn-record" onclick="record('${id}')">記録</button><div class="prediction-display"><span style="font-size:8px;">予測終了</span><span class="eta-time" id="${id}-eta">--:--</span><div class="target-needed" id="${id}-targetNeeded" style="display:none;"></div></div></div><table><thead><tr><th width="40%">時間</th><th width="20%">残</th><th width="30%">個/h</th><th width="10%"></th></tr></thead><tbody id="${id}-log"></tbody></table></div></div>`;
+        const html = `
+            <div class="line-container" id="${id}">
+                <header>
+                    <div class="line-info">
+                        <span class="line-title" onclick="renameLine('${id}')">${data.name}</span>
+                    </div>
+                    <div style="display:flex; gap:2px; align-items:center;">
+                        <div class="status-badge avg-badge">平均:<span id="${id}-headTotal">0.0</span></div>
+                        <button class="btn-orange" onclick="toggleTarget('${id}')">目標</button>
+                        <button class="btn-csv" onclick="exportCSV('${id}')">CSV</button>
+                        <button class="btn-gray" onclick="resetLine('${id}')">初期化</button>
+                        <button class="btn-red" onclick="removeLine('${id}')">削除</button>
+                    </div>
+                </header>
+                <div id="${id}-setup" class="controls" style="display: ${data.started ? 'none' : 'flex'}">
+                    <input type="number" id="${id}-startInput" placeholder="開始残数" pattern="\\d*" style="flex-grow:1;">
+                    <button class="btn-blue" style="width:auto; margin:0; height:40px; padding:0 20px;" onclick="startLine('${id}')">開始</button>
+                </div>
+                <div id="${id}-main" style="display: ${data.started ? 'block' : 'none'}">
+                    <div id="${id}-targetSetup" class="target-setup-area">
+                        <span style="font-size:10px;">目標:</span>
+                        <input type="time" id="${id}-targetInput" value="${data.targetTime || ''}" onchange="setTargetTime('${id}', this.value)" style="font-size:12px; height:24px;">
+                        <button class="btn-gray" onclick="setTargetTime('${id}', '')">解除</button>
+                    </div>
+                    <div class="controls">
+                        <input type="number" id="${id}-currInput" placeholder="残数入力" pattern="\\d*">
+                        <button class="btn-record" onclick="record('${id}')">記録</button>
+                        <div class="prediction-display">
+                            <span class="eta-label">予測終了</span>
+                            <span class="eta-time" id="${id}-eta">--:--</span>
+                            <div class="target-needed" id="${id}-targetNeeded" style="display:none;"></div>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr><th width="40%">時間範囲</th><th width="20%">残数</th><th width="30%">個/h</th><th width="10%"></th></tr>
+                        </thead>
+                        <tbody id="${id}-log"></tbody>
+                    </table>
+                </div>
+            </div>`;
         document.getElementById('linesContainer').insertAdjacentHTML('beforeend', html);
         if (data.started) refreshLineOnly(id);
     }
-    // (中略: 他の関数はv5.3と同様)
+
     function toggleTarget(id) { const el = document.getElementById(id + '-targetSetup'); el.style.display = (el.style.display === 'flex') ? 'none' : 'flex'; }
     function setTargetTime(id, val) { dataStore[id].targetTime = val; saveData(); updateStats(id); }
-    function startLine(id) { const input = document.getElementById(id + '-startInput'); const val = parseInt(input.value); if (isNaN(val)) return; dataStore[id].started = true; dataStore[id].logs = [{ rem: val, ts: Date.now() }]; saveData(); refreshLineOnly(id); document.getElementById(id+'-setup').style.display='none'; document.getElementById(id+'-main').style.display='block'; }
-    function record(id) { const input = document.getElementById(id + '-currInput'); const curr = parseInt(input.value); if (isNaN(curr)) return; dataStore[id].logs.push({ rem: curr, ts: Date.now() }); saveData(); refreshLineOnly(id); input.value = ""; }
-    function refreshLineOnly(id) { const ds = dataStore[id]; const tbody = document.getElementById(id + '-log'); tbody.innerHTML = ""; for (let i = ds.logs.length - 1; i >= 0; i--) { let range, rate; if (i === 0) { range = fmtTime(new Date(ds.logs[i].ts)); rate = "-"; } else { range = fmtTime(new Date(ds.logs[i-1].ts)) + "〜" + fmtTime(new Date(ds.logs[i].ts)); rate = ((ds.logs[i-1].rem - ds.logs[i].rem) / ((ds.logs[i].ts - ds.logs[i-1].ts) / 3600000)).toFixed(1); } tbody.insertAdjacentHTML('beforeend', `<tr><td>${range}</td><td>${ds.logs[i].rem}</td><td style="font-weight:bold;color:#d9534f">${rate}</td><td><button style="color:#ccc;background:none;border:none;font-size:16px;" onclick="deleteRow(this,'${id}',${i})">×</button></td></tr>`); } updateStats(id); }
-    function updateStats(id) { const ds = dataStore[id]; if (!ds.started || ds.logs.length === 0) return; const last = ds.logs[ds.logs.length-1]; const first = ds.logs[0]; const hrs = (last.ts - first.ts) / 3600000; const avg = hrs > 0 ? (first.rem - last.rem) / hrs : 0; document.getElementById(id+'-headTotal').innerText = avg.toFixed(1); const eta = document.getElementById(id+'-eta'); if (avg > 0) { eta.innerText = fmtTime(new Date(last.ts + (last.rem / avg) * 3600000)); } if (ds.targetTime) { const t = ds.targetTime.split(':'); const td = new Date(); td.setHours(t[0],t[1],0,0); if (td<last.ts) td.setDate(td.getDate()+1); const rHrs = (td-last.ts)/3600000; const nRate = rHrs>0 ? last.rem/rHrs : 0; const tr = document.getElementById(id+'-targetNeeded'); tr.style.display="block"; tr.innerText=`目標: ${nRate.toFixed(1)}/h`; if (avg<nRate) tr.classList.add('warn-blink'); else tr.classList.remove('warn-blink'); } }
-    function exportCSV(id) { const ds = dataStore[id]; let c = `ライン,時間,残数,個/h\n`; ds.logs.forEach((l,i)=>{ let r = i===0?"-":((ds.logs[i-1].rem-l.rem)/((l.ts-ds.logs[i-1].ts)/3600000)).toFixed(1); c+=`${ds.name},${fmtTime(new Date(l.ts))},${l.rem},${r}\n`; }); const b = new Blob([new Uint8Array([0xEF,0xBB,0xBF]),c],{type:"text/csv"}); const a = document.createElement("a"); a.href=URL.createObjectURL(b); a.download=`${ds.name}.csv`; a.click(); }
-    function deleteRow(btn, id, i) { if(confirm("消去？")){dataStore[id].logs.splice(i,1); saveData(); refreshLineOnly(id);} }
-    function resetLine(id) { if(confirm("リセット？")){dataStore[id].started=false; dataStore[id].logs=[]; saveData(); refreshList();} }
-    function removeLine(id) { if(confirm("削除？")){delete dataStore[id]; lineOrder=lineOrder.filter(l=>l!==id); saveData(); refreshList();} }
-    function renameLine(id) { const n = prompt("名前", dataStore[id].name); if(n){dataStore[id].name=n; saveData(); refreshList();} }
-    function refreshList() { const c = document.getElementById('linesContainer'); c.innerHTML = ""; lineOrder.forEach(id => { if (dataStore[id]) renderLine(id, dataStore[id]); }); }
+    
+    function startLine(id) { 
+        const input = document.getElementById(id + '-startInput'); 
+        const val = parseInt(input.value); 
+        if (isNaN(val)) return alert("数値を入力してください"); 
+        dataStore[id].started = true; 
+        dataStore[id].logs = [{ rem: val, ts: Date.now() }]; 
+        document.getElementById(id + '-setup').style.display = 'none'; 
+        document.getElementById(id + '-main').style.display = 'block'; 
+        saveData(); 
+        refreshLineOnly(id); 
+    }
+    
+    function record(id) { 
+        const input = document.getElementById(id + '-currInput'); 
+        const curr = parseInt(input.value); 
+        if (isNaN(curr)) return alert("数値を入力してください"); 
+        dataStore[id].logs.push({ rem: curr, ts: Date.now() }); 
+        saveData(); 
+        refreshLineOnly(id); 
+        input.value = ""; 
+    }
+
+    // 失われていた機能（時間編集・削除）を完全復活
+    function refreshLineOnly(id) {
+        const ds = dataStore[id]; 
+        const tbody = document.getElementById(id + '-log'); 
+        if (!tbody || !ds.logs || ds.logs.length === 0) return; 
+        tbody.innerHTML = "";
+        
+        for (let i = ds.logs.length - 1; i >= 0; i--) {
+            let range, rate;
+            if (i === 0) { 
+                // 開始時間の編集機能復活
+                range = `<span style="color:#007bff; font-weight:bold; font-size:10px; cursor:pointer;" onclick="editStartTime('${id}')">${fmtTime(new Date(ds.logs[i].ts))} (編集)</span>`; 
+                rate = "-"; 
+            } else { 
+                const currentLog = ds.logs[i]; 
+                const prevLog = ds.logs[i-1]; 
+                range = fmtTime(new Date(prevLog.ts)) + "〜" + fmtTime(new Date(currentLog.ts)); 
+                const intervalHrs = (currentLog.ts - prevLog.ts) / 3600000; 
+                rate = intervalHrs > 0 ? ((prevLog.rem - currentLog.rem) / intervalHrs).toFixed(1) : "0.0"; 
+            }
+            // ×ボタン（削除機能）復活
+            tbody.insertAdjacentHTML('beforeend', `<tr><td>${range}</td><td>${ds.logs[i].rem}</td><td class="highlight">${rate}</td><td><button class="btn-del-row" onclick="deleteRow(this, '${id}', ${i})">×</button></td></tr>`);
+        }
+        updateStats(id);
+    }
+
+    function updateStats(id) {
+        const ds = dataStore[id]; if (!ds || !ds.started || ds.logs.length === 0) return;
+        const latestLog = ds.logs[ds.logs.length - 1]; const startLog = ds.logs[0]; 
+        const totalHrsSoFar = (latestLog.ts - startLog.ts) / 3600000; 
+        const avgRate = totalHrsSoFar > 0 ? (startLog.rem - latestLog.rem) / totalHrsSoFar : 0;
+        
+        document.getElementById(id + '-headTotal').innerText = avgRate.toFixed(1);
+        const etaEl = document.getElementById(id + '-eta');
+        if (avgRate > 0) { 
+            const etaDate = new Date(latestLog.ts + (latestLog.rem / avgRate) * 3600000); 
+            etaEl.innerText = fmtTime(etaDate); 
+        } else { 
+            etaEl.innerText = "--:--"; 
+        }
+        
+        const targetRateEl = document.getElementById(id + '-targetNeeded');
+        if (ds.targetTime) {
+            const tParts = ds.targetTime.split(':'); const targetDate = new Date(); 
+            targetDate.setHours(tParts[0], tParts[1], 0, 0); 
+            if (targetDate < latestLog.ts) targetDate.setDate(targetDate.getDate() + 1);
+            const remainingHrs = (targetDate - latestLog.ts) / 3600000; 
+            const neededRate = remainingHrs > 0 ? latestLog.rem / remainingHrs : 0;
+            targetRateEl.style.display = "block"; targetRateEl.innerHTML = `目標: ${neededRate.toFixed(1)}/h`;
+            if (avgRate < neededRate) targetRateEl.classList.add('warn-blink'); 
+            else targetRateEl.classList.remove('warn-blink');
+        } else { 
+            targetRateEl.style.display = "none"; 
+        }
+    }
+
+    function exportCSV(id) {
+        const ds = dataStore[id]; if (!ds || ds.logs.length === 0) return alert("データがありません");
+        const now = new Date(); const dateStr = now.toLocaleDateString(); let csvContent = `ライン名,${ds.name},目標時刻,${ds.targetTime || '未設定'}\n出力日,${dateStr}\n\nライン名,日付,時間範囲,残数,区間生産性(個/h)\n`;
+        ds.logs.forEach((log, i) => {
+            let range, rate;
+            if (i === 0) { range = fmtTime(new Date(log.ts)) + "(開始)"; rate = "-"; }
+            else { const prev = ds.logs[i-1]; range = fmtTime(new Date(prev.ts)) + "-" + fmtTime(new Date(log.ts)); const hrs = (log.ts - prev.ts) / 3600000; rate = hrs > 0 ? ((prev.rem - log.rem) / hrs).toFixed(1) : "0"; }
+            csvContent += `${ds.name},${dateStr},${range},${log.rem},${rate}\n`;
+        });
+        const bom = new Uint8Array([0xEF, 0xBB, 0xBF]); const blob = new Blob([bom, csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a"); link.href = window.URL.createObjectURL(blob); link.download = `${ds.name}_${now.getMonth()+1}月${now.getDate()}日.csv`; link.click();
+    }
+
+    // 開始時間編集機能
+    function editStartTime(id) { 
+        const ds = dataStore[id]; const currentData = new Date(ds.logs[0].ts); 
+        const currentStr = currentData.getHours() + ":" + currentData.getMinutes().toString().padStart(2, '0'); 
+        const newTimeStr = prompt("開始時間(例 08:30)", currentStr); 
+        if (!newTimeStr) return; 
+        const timeParts = newTimeStr.split(/[:：]/); const h = parseInt(timeParts[0]); const m = parseInt(timeParts[1]); 
+        if (isNaN(h) || h < 0 || h > 23 || m < 0 || m > 59) return alert("無効な時間です"); 
+        const newDate = new Date(ds.logs[0].ts); newDate.setHours(h); newDate.setMinutes(m); newDate.setSeconds(0); 
+        ds.logs[0].ts = newDate.getTime(); 
+        saveData(); refreshLineOnly(id); 
+    }
+
+    // 行削除機能（食数・ログの消去）
+    function deleteRow(btn, id, index) { 
+        const ds = dataStore[id]; 
+        if (!confirm("この記録を削除しますか？")) return; 
+        ds.logs.splice(index, 1); 
+        if (ds.logs.length === 0) { ds.started = false; saveData(); refreshList(); } 
+        else { saveData(); refreshLineOnly(id); } 
+    }
+
+    function resetLine(id) { if (!confirm("初期化しますか？")) return; dataStore[id] = { name: dataStore[id].name, started: false, logs: [], targetTime: "" }; saveData(); refreshList(); }
+    function removeLine(id) { if (!confirm("削除しますか？")) return; delete dataStore[id]; lineOrder = lineOrder.filter(lId => lId !== id); saveData(); refreshList(); }
+    function renameLine(id) { const newName = prompt("ライン名", dataStore[id].name); if (newName) { dataStore[id].name = newName; saveData(); refreshList(); } }
+    function refreshList() { document.getElementById('linesContainer').innerHTML = ""; lineOrder.forEach(id => { if (dataStore[id]) renderLine(id, dataStore[id]); }); }
     function fmtTime(d) { return d.getHours() + ":" + d.getMinutes().toString().padStart(2, '0'); }
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+
+    // Service Workerの確実な登録（強制的に最新版を読み込ませる設定）
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js?v=5.5').then(() => {
+            console.log('SW Registered');
+        });
+    }
 </script>
 </body>
 </html>

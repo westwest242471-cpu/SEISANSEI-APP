@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v6.1</title>
+    <title>武蔵野 生産性管理 v6.2</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -15,59 +15,60 @@
         input, button, td, th, span { -webkit-user-select: auto; user-select: auto; }
         
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
-        .line-info { display: flex; align-items: center; gap: 8px; flex-grow: 1; overflow: hidden; }
+        .line-info { display: flex; align-items: center; gap: 6px; flex-grow: 1; overflow: hidden; }
         
         .toggle-btn { 
-            font-size: 14px; color: #444; background: #f8f8f8; 
+            font-size: 12px; color: #444; background: #f8f8f8; 
             border: 1px solid #ddd; border-radius: 4px;
-            width: 32px; height: 32px; 
+            width: 28px; height: 28px; 
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; flex-shrink: 0;
         }
         
         .line-title { 
-            font-size: 14px; font-weight: bold; color: #007bff; 
+            font-size: 13px; font-weight: bold; color: #007bff; 
             text-decoration: underline; white-space: nowrap; 
             overflow: hidden; text-overflow: ellipsis; 
-            max-width: 120px; cursor: pointer; padding: 5px 0;
+            max-width: 110px; cursor: pointer; padding: 2px 0;
         }
         
-        .status-badge { padding: 1px 4px; border-radius: 3px; font-weight: bold; font-size: 10px; border: 1.5px solid; }
+        .status-badge { padding: 1px 3px; border-radius: 3px; font-weight: bold; font-size: 9px; border: 1.2px solid; }
         .avg-badge { border-color: #28a745; color: #28a745; background: #fafffa; }
         
-        :root { --ctrl-height: 40px; }
+        :root { --ctrl-height: 36px; }
         .controls { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
-        input[type="number"] { width: 100px; padding: 0 8px; border: 2px solid #007bff; border-radius: 4px; font-size: 18px; font-weight: bold; height: var(--ctrl-height); box-sizing: border-box; }
-        .btn-record { padding: 0 12px; border-radius: 4px; border: none; font-size: 14px; font-weight: bold; background: #28a745; color: white; height: var(--ctrl-height); }
+        input[type="number"] { width: 90px; padding: 0 6px; border: 2px solid #007bff; border-radius: 4px; font-size: 16px; font-weight: bold; height: var(--ctrl-height); box-sizing: border-box; }
+        .btn-record { padding: 0 10px; border-radius: 4px; border: none; font-size: 13px; font-weight: bold; background: #28a745; color: white; height: var(--ctrl-height); }
         .prediction-display { flex-grow: 1; background: #fff9db; border: 1.5px solid #fab005; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: var(--ctrl-height); }
-        .eta-time { font-size: 16px; font-weight: bold; }
+        .eta-time { font-size: 14px; font-weight: bold; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 2px; table-layout: fixed; border: 1px solid #eee; }
-        th, td { border: 1px solid #eee; padding: 4px 1px; text-align: center; height: 32px; }
-        th { background: #f8f8f8; font-size: 9px; color: #888; }
+        /* テーブルの極限コンパクト化 */
+        table { width: 100%; border-collapse: collapse; margin-top: 1px; table-layout: fixed; border: 1px solid #eee; }
+        th, td { border: 1px solid #eee; padding: 0px 1px; text-align: center; height: 24px; line-height: 24px; }
+        th { background: #f8f8f8; font-size: 8px; color: #999; height: 18px; line-height: 18px; }
+        td { font-size: 12px; }
         .editable { color: #007bff; text-decoration: dotted underline; cursor: pointer; font-weight: bold; }
+        .btn-row-del { color: #bbb; background: none; border: none; font-size: 16px; cursor: pointer; padding: 0; display: block; width: 100%; height: 100%; }
         
-        /* 削除ボタンのスタイル */
-        .btn-row-del { color: #ccc; background: none; border: none; font-size: 18px; cursor: pointer; padding: 0 5px; }
-        
-        .line-body { display: block; }
+        .line-body { display: block; margin-top: 4px; }
         .line-container.collapsed .line-body { display: none; }
-        .line-container.collapsed { border-left-color: #ccc; background: #fafafa; }
+        .line-container.collapsed { border-left-color: #ccc; background: #fafafa; margin-bottom: 4px; }
 
-        .btn-blue { background: #007bff; color: white; width: 100%; margin-bottom: 6px; padding: 10px; font-size: 13px; font-weight: bold; border-radius: 4px; border:none; }
-        .btn-orange { background: #f39c12; color: white; border:none; border-radius:3px; padding:4px 6px; font-size:10px; }
-        .btn-gray { background: #666; color: white; border:none; border-radius:3px; padding:4px 6px; font-size:10px; }
-        .btn-red { background: #dc3545; color: white; border:none; border-radius:3px; padding:4px 6px; font-size:10px; }
+        .btn-blue { background: #007bff; color: white; width: 100%; margin-bottom: 6px; padding: 8px; font-size: 13px; font-weight: bold; border-radius: 4px; border:none; }
+        .btn-orange, .btn-gray, .btn-red { color: white; border:none; border-radius:3px; padding:2px 4px; font-size: 9px; }
+        .btn-orange { background: #f39c12; }
+        .btn-gray { background: #666; }
+        .btn-red { background: #dc3545; }
         
         .system-footer { margin-top: 30px; border-top: 1px dashed #ccc; padding: 15px 5px; text-align: center; }
-        .btn-full-reset { background: #f03e3e; color: white; padding: 12px; border-radius: 6px; font-size: 12px; width: 90%; border: none; font-weight: bold; opacity: 0.8; }
+        .btn-full-reset { background: #f03e3e; color: white; padding: 10px; border-radius: 6px; font-size: 11px; width: 90%; border: none; font-weight: bold; opacity: 0.8; }
 
         #customModalOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; }
         .modal-card { background: white; width: 85%; max-width: 320px; padding: 20px; border-radius: 12px; text-align: center; }
-        .modal-title { font-weight: bold; font-size: 16px; margin-bottom: 10px; color: #d63031; }
-        .modal-text { font-size: 14px; margin-bottom: 20px; line-height: 1.4; }
+        .modal-title { font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #d63031; }
+        .modal-text { font-size: 13px; margin-bottom: 15px; line-height: 1.4; }
         .modal-btns { display: flex; gap: 10px; }
-        .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; }
+        .modal-btns button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -108,9 +109,9 @@
     window.onpopstate = () => document.getElementById('customModalOverlay').style.display = 'none';
 
     function startFullResetFlow() {
-        openModal("【確認 1/2】", "全データを消去します。よろしいですか？", () => {
+        openModal("【確認 1/2】", "全データを消去しますか？", () => {
             setTimeout(() => {
-                openModal("【最終確認 2/2】", "本当に消去します。よろしいですね？", () => {
+                openModal("【最終確認 2/2】", "本当によろしいですね？", () => {
                     localStorage.clear(); dataStore = {}; lineOrder = []; saveData(); refreshList();
                     document.getElementById('customModalOverlay').style.display = 'none';
                     alert("初期化完了");
@@ -134,7 +135,7 @@
     }
 
     function renameLine(id) {
-        const newName = prompt("ライン名を入力", dataStore[id].name);
+        const newName = prompt("名前変更", dataStore[id].name);
         if (newName) { dataStore[id].name = newName; saveData(); refreshList(); }
     }
 
@@ -156,27 +157,27 @@
                         <span class="line-title" onclick="renameLine('${id}')">${data.name}</span>
                     </div>
                     <div style="display:flex; gap:2px;">
-                        <div class="status-badge avg-badge">平均:<span id="${id}-headTotal">0.0</span></div>
+                        <div class="status-badge avg-badge"><span id="${id}-headTotal">0.0</span></div>
                         <button class="btn-orange" onclick="toggleTarget('${id}')">目標</button>
-                        <button class="btn-gray" onclick="resetLine('${id}')">リセット</button>
+                        <button class="btn-gray" onclick="resetLine('${id}')">リセ</button>
                         <button class="btn-red" onclick="removeLine('${id}')">削除</button>
                     </div>
                 </header>
                 <div class="line-body">
                     <div id="${id}-setup" class="controls" style="display: ${data.started ? 'none' : 'flex'}">
                         <input type="number" id="${id}-startInput" placeholder="開始残数" pattern="\\d*" style="flex-grow:1;">
-                        <button class="btn-blue" style="width:auto; margin:0; height:40px; padding:0 20px;" onclick="startLine('${id}')">開始</button>
+                        <button class="btn-blue" style="width:auto; margin:0; height:36px; padding:0 15px;" onclick="startLine('${id}')">開始</button>
                     </div>
                     <div id="${id}-main" style="display: ${data.started ? 'block' : 'none'}">
                         <div id="${id}-targetSetup" class="target-setup-area" style="display:none; background:#fffbe6; padding:4px; margin-bottom:4px; border-radius:4px; align-items:center; justify-content:center; gap:4px;">
                             <input type="time" id="${id}-targetInput" value="${data.targetTime || ''}" onchange="setTargetTime('${id}', this.value)">
-                            <button class="btn-gray" onclick="setTargetTime('${id}', '')">解除</button>
+                            <button class="btn-gray" onclick="setTargetTime('${id}', '')" style="padding:4px 8px">解除</button>
                         </div>
                         <div class="controls">
                             <input type="number" id="${id}-currInput" placeholder="残数" pattern="\\d*">
                             <button class="btn-record" onclick="record('${id}')">記録</button>
                             <div class="prediction-display">
-                                <span style="font-size:8px;">終了予測</span>
+                                <span style="font-size:7px;">終了予測</span>
                                 <span class="eta-time" id="${id}-eta">--:--</span>
                             </div>
                         </div>
@@ -202,14 +203,12 @@
             let timeDisp = `<span class="editable" onclick="editRowTime('${id}', ${i})">${fmtTime(new Date(log.ts))}</span>`;
             let remDisp = `<span class="editable" onclick="editRowRem('${id}', ${i})">${log.rem}</span>`;
             let rate = i > 0 ? ((ds.logs[i-1].rem - ds.logs[i].rem) / ((ds.logs[i].ts - ds.logs[i-1].ts) / 3600000)).toFixed(1) : "-";
-            // 削除ボタンを復活
             tbody.insertAdjacentHTML('afterbegin', `<tr><td>${timeDisp}</td><td>${remDisp}</td><td style="font-weight:bold;color:#d9534f">${rate}</td><td><button class="btn-row-del" onclick="deleteRow('${id}', ${i})">×</button></td></tr>`);
         });
         updateStats(id);
     }
 
-    function deleteRow(id, i) { if (confirm("この記録を削除しますか？")) { dataStore[id].logs.splice(i, 1); if (dataStore[id].logs.length === 0) dataStore[id].started = false; saveData(); refreshList(); } }
-
+    function deleteRow(id, i) { if (confirm("削除？")) { dataStore[id].logs.splice(i, 1); if (dataStore[id].logs.length === 0) dataStore[id].started = false; saveData(); refreshList(); } }
     function editRowTime(id, index) {
         const input = prompt("修正 (14:30)", fmtTime(new Date(dataStore[id].logs[index].ts)));
         if (!input) return;
@@ -220,21 +219,18 @@
         dataStore[id].logs.sort((a,b)=>a.ts-b.ts);
         saveData(); refreshLineOnly(id);
     }
-
     function editRowRem(id, index) {
         const input = prompt("残数修正", dataStore[id].logs[index].rem);
         if (input) { dataStore[id].logs[index].rem = parseInt(input); saveData(); refreshLineOnly(id); }
     }
-
     function updateStats(id) {
         const ds = dataStore[id]; if (!ds.started || ds.logs.length === 0) return;
         const last = ds.logs[ds.logs.length-1]; const avg = (ds.logs[0].rem - last.rem) / ((last.ts - ds.logs[0].ts) / 3600000);
         document.getElementById(id+'-headTotal').innerText = isFinite(avg) ? avg.toFixed(1) : "0.0";
         document.getElementById(id+'-eta').innerText = avg > 0 ? fmtTime(new Date(last.ts + (last.rem / avg) * 3600000)) : "--:--";
     }
-
-    function resetLine(id) { if(confirm("ラインのリセット？")){ dataStore[id].started=false; dataStore[id].logs=[]; saveData(); refreshList(); } }
-    function removeLine(id) { if(confirm("ラインの削除？")){ delete dataStore[id]; lineOrder=lineOrder.filter(l=>l!==id); saveData(); refreshList(); } }
+    function resetLine(id) { if(confirm("リセット？")){ dataStore[id].started=false; dataStore[id].logs=[]; saveData(); refreshList(); } }
+    function removeLine(id) { if(confirm("削除？")){ delete dataStore[id]; lineOrder=lineOrder.filter(l=>l!==id); saveData(); refreshList(); } }
     function refreshList() { document.getElementById('linesContainer').innerHTML = ""; lineOrder.forEach(id => renderLine(id, dataStore[id])); }
     function fmtTime(d) { return d.getHours() + ":" + d.getMinutes().toString().padStart(2, '0'); }
 </script>

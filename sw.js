@@ -1,18 +1,36 @@
-const CACHE_NAME = 'prod-man-v5.1';
+const CACHE_NAME = 'prod-man-v5.5';
 const urlsToCache = ['index.html', 'manifest.json'];
 
-// インストール時にファイルをキャッシュ
+// インストール時に強制的に最新にする
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
   );
 });
 
-// オフライン時はキャッシュから読み込む
+// 古いキャッシュを確実に捨てる
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+// オフライン対応
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      // ネットワークから取得できれば最新を、できなければキャッシュを返す
+      return fetch(event.request).catch(() => response);
     })
   );
 });

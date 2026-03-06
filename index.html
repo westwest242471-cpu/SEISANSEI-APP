@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v6.3</title>
+    <title>武蔵野 生産性管理 v6.4</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -37,7 +37,8 @@
         
         :root { --ctrl-height: 36px; }
         .controls { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
-        input[type="number"] { width: 90px; padding: 0 6px; border: 2px solid #007bff; border-radius: 4px; font-size: 16px; font-weight: bold; height: var(--ctrl-height); box-sizing: border-box; }
+        input[type="number"], .modal-input { width: 90px; padding: 0 6px; border: 2px solid #007bff; border-radius: 4px; font-size: 16px; font-weight: bold; height: var(--ctrl-height); box-sizing: border-box; }
+        .modal-input { width: 100%; margin-bottom: 15px; }
         .btn-record { padding: 0 10px; border-radius: 4px; border: none; font-size: 13px; font-weight: bold; background: #28a745; color: white; height: var(--ctrl-height); }
         .prediction-display { flex-grow: 1; background: #fff9db; border: 1.5px solid #fab005; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: var(--ctrl-height); }
         .eta-time { font-size: 14px; font-weight: bold; }
@@ -54,7 +55,6 @@
         .line-container.collapsed { border-left-color: #ccc; background: #fafafa; margin-bottom: 4px; }
 
         .btn-blue { background: #007bff; color: white; width: 100%; margin-bottom: 6px; padding: 8px; font-size: 13px; font-weight: bold; border-radius: 4px; border:none; }
-        /* ボタン幅を確保しつつ元の表記に */
         .btn-orange, .btn-gray, .btn-red { color: white; border:none; border-radius:3px; padding:4px 6px; font-size: 10px; font-weight: bold; }
         .btn-orange { background: #f39c12; }
         .btn-gray { background: #666; }
@@ -64,17 +64,18 @@
         .credit { font-size: 11px; color: #777; margin-bottom: 10px; font-style: italic; }
         .btn-full-reset { background: #f03e3e; color: white; padding: 10px; border-radius: 6px; font-size: 11px; width: 90%; border: none; font-weight: bold; opacity: 0.7; }
 
+        /* カスタムモーダル */
         #customModalOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; }
         .modal-card { background: white; width: 85%; max-width: 320px; padding: 20px; border-radius: 12px; text-align: center; }
-        .modal-title { font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #d63031; }
-        .modal-text { font-size: 13px; margin-bottom: 15px; line-height: 1.4; }
+        .modal-title { font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #333; }
+        .modal-text { font-size: 13px; margin-bottom: 15px; line-height: 1.4; color: #666; }
         .modal-btns { display: flex; gap: 10px; }
-        .modal-btns button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; }
+        .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; }
     </style>
 </head>
 <body>
 
-<button class="btn-blue" onclick="addNewLine()">＋ 新しいラインを追加</button>
+<button class="btn-blue" onclick="openInputModal('新しいライン名を入力', '', (val) => { addNewLine(val) })">＋ 新しいラインを追加</button>
 <div id="linesContainer"></div>
 
 <div class="system-footer">
@@ -85,10 +86,13 @@
 <div id="customModalOverlay" onclick="closeModal()">
     <div class="modal-card" onclick="event.stopPropagation()">
         <div id="modalTitle" class="modal-title">確認</div>
-        <div id="modalText" class="modal-text">メッセージ</div>
+        <div id="modalText" class="modal-text"></div>
+        <div id="modalInputArea" style="display:none;">
+            <input type="text" id="modalInput" class="modal-input">
+        </div>
         <div class="modal-btns">
             <button style="background:#eee;" onclick="closeModal()">キャンセル</button>
-            <button id="modalConfirmBtn" style="background:#d63031; color:white;">実行する</button>
+            <button id="modalConfirmBtn" style="background:#007bff; color:white;">実行する</button>
         </div>
     </div>
 </div>
@@ -100,23 +104,41 @@
     window.onload = function() { refreshList(); initSortable(); };
     function saveData() { localStorage.setItem('lineAppData', JSON.stringify(dataStore)); localStorage.setItem('lineAppOrder', JSON.stringify(lineOrder)); }
 
-    function openModal(title, text, callback) {
+    // --- モーダル制御 (メッセージのみ) ---
+    function openConfirmModal(title, text, confirmColor, callback) {
         document.getElementById('modalTitle').innerText = title;
         document.getElementById('modalText').innerText = text;
-        document.getElementById('modalConfirmBtn').onclick = () => { callback(); };
+        document.getElementById('modalInputArea').style.display = 'none';
+        const btn = document.getElementById('modalConfirmBtn');
+        btn.style.background = confirmColor;
+        btn.onclick = () => { callback(); closeModal(); };
         document.getElementById('customModalOverlay').style.display = 'flex';
         history.pushState({modal: true}, "");
     }
+
+    // --- モーダル制御 (入力あり) ---
+    function openInputModal(title, defaultVal, callback) {
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalText').innerText = "";
+        document.getElementById('modalInputArea').style.display = 'block';
+        const input = document.getElementById('modalInput');
+        input.value = defaultVal;
+        const btn = document.getElementById('modalConfirmBtn');
+        btn.style.background = "#007bff";
+        btn.onclick = () => { if(input.value) { callback(input.value); closeModal(); } };
+        document.getElementById('customModalOverlay').style.display = 'flex';
+        setTimeout(() => input.focus(), 100);
+        history.pushState({modal: true}, "");
+    }
+
     function closeModal() { document.getElementById('customModalOverlay').style.display = 'none'; if(history.state && history.state.modal) history.back(); }
     window.onpopstate = () => document.getElementById('customModalOverlay').style.display = 'none';
 
     function startFullResetFlow() {
-        openModal("【確認 1/2】", "すべてのラインデータを消去しますか？", () => {
+        openConfirmModal("【確認 1/2】", "すべてのラインデータを消去しますか？", "#d63031", () => {
             setTimeout(() => {
-                openModal("【最終確認 2/2】", "本当によろしいですね？\n全データが失われます。", () => {
+                openConfirmModal("【最終確認 2/2】", "本当によろしいですね？全データが失われます。", "#d63031", () => {
                     localStorage.clear(); dataStore = {}; lineOrder = []; saveData(); refreshList();
-                    document.getElementById('customModalOverlay').style.display = 'none';
-                    alert("初期化完了しました。");
                 });
             }, 300);
         });
@@ -136,13 +158,7 @@
         else { el.classList.remove('collapsed'); icon.innerText = '▲'; }
     }
 
-    function renameLine(id) {
-        const newName = prompt("名前を変更", dataStore[id].name);
-        if (newName) { dataStore[id].name = newName; saveData(); refreshList(); }
-    }
-
-    function addNewLine() { 
-        const name = prompt("新しいライン名を入力してください"); if (!name) return;
+    function addNewLine(name) { 
         const id = 'line-' + Date.now();
         dataStore[id] = { name: name, started: false, logs: [], targetTime: "", collapsed: false };
         lineOrder.unshift(id); saveData(); refreshList();
@@ -156,13 +172,13 @@
                 <header>
                     <div class="line-info">
                         <div class="toggle-btn" onclick="toggleCollapse('${id}')">${icon}</div>
-                        <span class="line-title" onclick="renameLine('${id}')">${data.name}</span>
+                        <span class="line-title" onclick="openInputModal('名前を変更', '${data.name}', (val)=>{ dataStore['${id}'].name=val; saveData(); refreshList(); })">${data.name}</span>
                     </div>
                     <div style="display:flex; gap:3px;">
                         <div class="status-badge avg-badge">平均:<span id="${id}-headTotal">0.0</span></div>
                         <button class="btn-orange" onclick="toggleTarget('${id}')">目標</button>
-                        <button class="btn-gray" onclick="resetLine('${id}')">リセット</button>
-                        <button class="btn-red" onclick="removeLine('${id}')">削除</button>
+                        <button class="btn-gray" onclick="openConfirmModal('リセット', 'このラインをリセットしますか？', '#666', ()=>{ dataStore['${id}'].started=false; dataStore['${id}'].logs=[]; saveData(); refreshList(); })">リセット</button>
+                        <button class="btn-red" onclick="openConfirmModal('削除', 'このライン自体を削除しますか？', '#dc3545', ()=>{ delete dataStore['${id}']; lineOrder=lineOrder.filter(l=>l!=='${id}'); saveData(); refreshList(); })">削除</button>
                     </div>
                 </header>
                 <div class="line-body">
@@ -202,18 +218,15 @@
     function refreshLineOnly(id) {
         const ds = dataStore[id]; const tbody = document.getElementById(id + '-log'); tbody.innerHTML = "";
         ds.logs.forEach((log, i) => {
-            let timeDisp = `<span class="editable" onclick="editRowTime('${id}', ${i})">${fmtTime(new Date(log.ts))}</span>`;
-            let remDisp = `<span class="editable" onclick="editRowRem('${id}', ${i})">${log.rem}</span>`;
+            let timeDisp = `<span class="editable" onclick="openInputModal('時間の修正 (例 14:30)', '${fmtTime(new Date(log.ts))}', (v)=>{ editRowTime('${id}', ${i}, v) })">${fmtTime(new Date(log.ts))}</span>`;
+            let remDisp = `<span class="editable" onclick="openInputModal('残数の修正', '${log.rem}', (v)=>{ dataStore['${id}'].logs[${i}].rem=parseInt(v); saveData(); refreshLineOnly('${id}'); })">${log.rem}</span>`;
             let rate = i > 0 ? ((ds.logs[i-1].rem - ds.logs[i].rem) / ((ds.logs[i].ts - ds.logs[i-1].ts) / 3600000)).toFixed(1) : "-";
-            tbody.insertAdjacentHTML('afterbegin', `<tr><td>${timeDisp}</td><td>${remDisp}</td><td style="font-weight:bold;color:#d9534f">${rate}</td><td><button class="btn-row-del" onclick="deleteRow('${id}', ${i})">×</button></td></tr>`);
+            tbody.insertAdjacentHTML('afterbegin', `<tr><td>${timeDisp}</td><td>${remDisp}</td><td style="font-weight:bold;color:#d9534f">${rate}</td><td><button class="btn-row-del" onclick="openConfirmModal('行の削除', 'この行を削除しますか？', '#666', ()=>{ dataStore['${id}'].logs.splice(${i}, 1); if(dataStore['${id}'].logs.length===0)dataStore['${id}'].started=false; saveData(); refreshList(); })">×</button></td></tr>`);
         });
         updateStats(id);
     }
 
-    function deleteRow(id, i) { if (confirm("この行を削除しますか？")) { dataStore[id].logs.splice(i, 1); if (dataStore[id].logs.length === 0) dataStore[id].started = false; saveData(); refreshList(); } }
-    function editRowTime(id, index) {
-        const input = prompt("時間の修正 (例 14:30)", fmtTime(new Date(dataStore[id].logs[index].ts)));
-        if (!input) return;
+    function editRowTime(id, index, input) {
         const p = input.split(/[:：]/);
         const d = new Date(dataStore[id].logs[index].ts);
         d.setHours(p[0], p[1]);
@@ -221,18 +234,13 @@
         dataStore[id].logs.sort((a,b)=>a.ts-b.ts);
         saveData(); refreshLineOnly(id);
     }
-    function editRowRem(id, index) {
-        const input = prompt("残数の修正", dataStore[id].logs[index].rem);
-        if (input) { dataStore[id].logs[index].rem = parseInt(input); saveData(); refreshLineOnly(id); }
-    }
+
     function updateStats(id) {
         const ds = dataStore[id]; if (!ds.started || ds.logs.length === 0) return;
         const last = ds.logs[ds.logs.length-1]; const avg = (ds.logs[0].rem - last.rem) / ((last.ts - ds.logs[0].ts) / 3600000);
         document.getElementById(id+'-headTotal').innerText = isFinite(avg) ? avg.toFixed(1) : "0.0";
         document.getElementById(id+'-eta').innerText = avg > 0 ? fmtTime(new Date(last.ts + (last.rem / avg) * 3600000)) : "--:--";
     }
-    function resetLine(id) { if(confirm("このラインをリセットしてよろしいですか？")){ dataStore[id].started=false; dataStore[id].logs=[]; saveData(); refreshList(); } }
-    function removeLine(id) { if(confirm("このライン自体を削除しますか？")){ delete dataStore[id]; lineOrder=lineOrder.filter(l=>l!==id); saveData(); refreshList(); } }
     function refreshList() { document.getElementById('linesContainer').innerHTML = ""; lineOrder.forEach(id => renderLine(id, dataStore[id])); }
     function fmtTime(d) { return d.getHours() + ":" + d.getMinutes().toString().padStart(2, '0'); }
 </script>

@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v6.2</title>
+    <title>武蔵野 生産性管理 v6.3</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
-        body { font-family: sans-serif; margin: 4px; background-color: #f0f0f0; font-size: 13px; line-height: 1.1; padding-bottom: 60px; }
+        body { font-family: sans-serif; margin: 4px; background-color: #f0f0f0; font-size: 13px; line-height: 1.1; padding-bottom: 80px; }
         .line-container { background: white; padding: 6px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 8px; border-left: 4px solid #007bff; -webkit-user-select: none; user-select: none; }
         input, button, td, th, span { -webkit-user-select: auto; user-select: auto; }
         
@@ -29,7 +29,7 @@
             font-size: 13px; font-weight: bold; color: #007bff; 
             text-decoration: underline; white-space: nowrap; 
             overflow: hidden; text-overflow: ellipsis; 
-            max-width: 110px; cursor: pointer; padding: 2px 0;
+            max-width: 100px; cursor: pointer; padding: 2px 0;
         }
         
         .status-badge { padding: 1px 3px; border-radius: 3px; font-weight: bold; font-size: 9px; border: 1.2px solid; }
@@ -42,7 +42,6 @@
         .prediction-display { flex-grow: 1; background: #fff9db; border: 1.5px solid #fab005; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: var(--ctrl-height); }
         .eta-time { font-size: 14px; font-weight: bold; }
         
-        /* テーブルの極限コンパクト化 */
         table { width: 100%; border-collapse: collapse; margin-top: 1px; table-layout: fixed; border: 1px solid #eee; }
         th, td { border: 1px solid #eee; padding: 0px 1px; text-align: center; height: 24px; line-height: 24px; }
         th { background: #f8f8f8; font-size: 8px; color: #999; height: 18px; line-height: 18px; }
@@ -55,13 +54,15 @@
         .line-container.collapsed { border-left-color: #ccc; background: #fafafa; margin-bottom: 4px; }
 
         .btn-blue { background: #007bff; color: white; width: 100%; margin-bottom: 6px; padding: 8px; font-size: 13px; font-weight: bold; border-radius: 4px; border:none; }
-        .btn-orange, .btn-gray, .btn-red { color: white; border:none; border-radius:3px; padding:2px 4px; font-size: 9px; }
+        /* ボタン幅を確保しつつ元の表記に */
+        .btn-orange, .btn-gray, .btn-red { color: white; border:none; border-radius:3px; padding:4px 6px; font-size: 10px; font-weight: bold; }
         .btn-orange { background: #f39c12; }
         .btn-gray { background: #666; }
         .btn-red { background: #dc3545; }
         
-        .system-footer { margin-top: 30px; border-top: 1px dashed #ccc; padding: 15px 5px; text-align: center; }
-        .btn-full-reset { background: #f03e3e; color: white; padding: 10px; border-radius: 6px; font-size: 11px; width: 90%; border: none; font-weight: bold; opacity: 0.8; }
+        .system-footer { margin-top: 40px; border-top: 1px dashed #ccc; padding: 15px 5px; text-align: center; }
+        .credit { font-size: 11px; color: #777; margin-bottom: 10px; font-style: italic; }
+        .btn-full-reset { background: #f03e3e; color: white; padding: 10px; border-radius: 6px; font-size: 11px; width: 90%; border: none; font-weight: bold; opacity: 0.7; }
 
         #customModalOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; }
         .modal-card { background: white; width: 85%; max-width: 320px; padding: 20px; border-radius: 12px; text-align: center; }
@@ -77,6 +78,7 @@
 <div id="linesContainer"></div>
 
 <div class="system-footer">
+    <div class="credit">Developed by: 埼玉工場 加工1F 西</div>
     <button class="btn-full-reset" onclick="startFullResetFlow()">⚠️ 全データを完全削除（初期化）</button>
 </div>
 
@@ -109,12 +111,12 @@
     window.onpopstate = () => document.getElementById('customModalOverlay').style.display = 'none';
 
     function startFullResetFlow() {
-        openModal("【確認 1/2】", "全データを消去しますか？", () => {
+        openModal("【確認 1/2】", "すべてのラインデータを消去しますか？", () => {
             setTimeout(() => {
-                openModal("【最終確認 2/2】", "本当によろしいですね？", () => {
+                openModal("【最終確認 2/2】", "本当によろしいですね？\n全データが失われます。", () => {
                     localStorage.clear(); dataStore = {}; lineOrder = []; saveData(); refreshList();
                     document.getElementById('customModalOverlay').style.display = 'none';
-                    alert("初期化完了");
+                    alert("初期化完了しました。");
                 });
             }, 300);
         });
@@ -135,12 +137,12 @@
     }
 
     function renameLine(id) {
-        const newName = prompt("名前変更", dataStore[id].name);
+        const newName = prompt("名前を変更", dataStore[id].name);
         if (newName) { dataStore[id].name = newName; saveData(); refreshList(); }
     }
 
     function addNewLine() { 
-        const name = prompt("ライン名"); if (!name) return;
+        const name = prompt("新しいライン名を入力してください"); if (!name) return;
         const id = 'line-' + Date.now();
         dataStore[id] = { name: name, started: false, logs: [], targetTime: "", collapsed: false };
         lineOrder.unshift(id); saveData(); refreshList();
@@ -156,10 +158,10 @@
                         <div class="toggle-btn" onclick="toggleCollapse('${id}')">${icon}</div>
                         <span class="line-title" onclick="renameLine('${id}')">${data.name}</span>
                     </div>
-                    <div style="display:flex; gap:2px;">
-                        <div class="status-badge avg-badge"><span id="${id}-headTotal">0.0</span></div>
+                    <div style="display:flex; gap:3px;">
+                        <div class="status-badge avg-badge">平均:<span id="${id}-headTotal">0.0</span></div>
                         <button class="btn-orange" onclick="toggleTarget('${id}')">目標</button>
-                        <button class="btn-gray" onclick="resetLine('${id}')">リセ</button>
+                        <button class="btn-gray" onclick="resetLine('${id}')">リセット</button>
                         <button class="btn-red" onclick="removeLine('${id}')">削除</button>
                     </div>
                 </header>
@@ -171,7 +173,7 @@
                     <div id="${id}-main" style="display: ${data.started ? 'block' : 'none'}">
                         <div id="${id}-targetSetup" class="target-setup-area" style="display:none; background:#fffbe6; padding:4px; margin-bottom:4px; border-radius:4px; align-items:center; justify-content:center; gap:4px;">
                             <input type="time" id="${id}-targetInput" value="${data.targetTime || ''}" onchange="setTargetTime('${id}', this.value)">
-                            <button class="btn-gray" onclick="setTargetTime('${id}', '')" style="padding:4px 8px">解除</button>
+                            <button class="btn-gray" onclick="setTargetTime('${id}', '')" style="padding:4px 8px">目標解除</button>
                         </div>
                         <div class="controls">
                             <input type="number" id="${id}-currInput" placeholder="残数" pattern="\\d*">
@@ -182,7 +184,7 @@
                             </div>
                         </div>
                         <table>
-                            <thead><tr><th width="35%">時間</th><th width="25%">残数</th><th width="25%">個/h</th><th width="15%">消</th></tr></thead>
+                            <thead><tr><th width="35%">時間</th><th width="25%">残数</th><th width="25%">個/h</th><th width="15%">削除</th></tr></thead>
                             <tbody id="${id}-log"></tbody>
                         </table>
                     </div>
@@ -208,9 +210,9 @@
         updateStats(id);
     }
 
-    function deleteRow(id, i) { if (confirm("削除？")) { dataStore[id].logs.splice(i, 1); if (dataStore[id].logs.length === 0) dataStore[id].started = false; saveData(); refreshList(); } }
+    function deleteRow(id, i) { if (confirm("この行を削除しますか？")) { dataStore[id].logs.splice(i, 1); if (dataStore[id].logs.length === 0) dataStore[id].started = false; saveData(); refreshList(); } }
     function editRowTime(id, index) {
-        const input = prompt("修正 (14:30)", fmtTime(new Date(dataStore[id].logs[index].ts)));
+        const input = prompt("時間の修正 (例 14:30)", fmtTime(new Date(dataStore[id].logs[index].ts)));
         if (!input) return;
         const p = input.split(/[:：]/);
         const d = new Date(dataStore[id].logs[index].ts);
@@ -220,7 +222,7 @@
         saveData(); refreshLineOnly(id);
     }
     function editRowRem(id, index) {
-        const input = prompt("残数修正", dataStore[id].logs[index].rem);
+        const input = prompt("残数の修正", dataStore[id].logs[index].rem);
         if (input) { dataStore[id].logs[index].rem = parseInt(input); saveData(); refreshLineOnly(id); }
     }
     function updateStats(id) {
@@ -229,8 +231,8 @@
         document.getElementById(id+'-headTotal').innerText = isFinite(avg) ? avg.toFixed(1) : "0.0";
         document.getElementById(id+'-eta').innerText = avg > 0 ? fmtTime(new Date(last.ts + (last.rem / avg) * 3600000)) : "--:--";
     }
-    function resetLine(id) { if(confirm("リセット？")){ dataStore[id].started=false; dataStore[id].logs=[]; saveData(); refreshList(); } }
-    function removeLine(id) { if(confirm("削除？")){ delete dataStore[id]; lineOrder=lineOrder.filter(l=>l!==id); saveData(); refreshList(); } }
+    function resetLine(id) { if(confirm("このラインをリセットしてよろしいですか？")){ dataStore[id].started=false; dataStore[id].logs=[]; saveData(); refreshList(); } }
+    function removeLine(id) { if(confirm("このライン自体を削除しますか？")){ delete dataStore[id]; lineOrder=lineOrder.filter(l=>l!==id); saveData(); refreshList(); } }
     function refreshList() { document.getElementById('linesContainer').innerHTML = ""; lineOrder.forEach(id => renderLine(id, dataStore[id])); }
     function fmtTime(d) { return d.getHours() + ":" + d.getMinutes().toString().padStart(2, '0'); }
 </script>

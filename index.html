@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v5.2</title>
+    <title>武蔵野 生産性管理 v5.3</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,16 +14,21 @@
 
     <style>
         body { font-family: sans-serif; margin: 4px; background-color: #f0f0f0; font-size: 13px; line-height: 1.1; }
-        /* 並び替え中のスタイル */
-        .sortable-ghost { opacity: 0.4; background-color: #e1f5fe !important; }
+        .sortable-ghost { opacity: 0.3; background-color: #e1f5fe !important; border: 2px dashed #007bff; }
         
-        .line-container { background: white; padding: 6px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 8px; border-left: 4px solid #007bff; cursor: grab; }
-        .line-container:active { cursor: grabbing; }
-
+        .line-container { background: white; padding: 6px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 8px; border-left: 4px solid #007bff; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
         .line-info { display: flex; align-items: center; gap: 3px; }
-        /* ドラッグ用ハンドル */
-        .drag-handle { color: #ccc; cursor: grab; font-size: 18px; padding-right: 5px; user-select: none; }
+        
+        /* ドラッグ用ハンドルの設定を強化 */
+        .drag-handle { 
+            color: #bbb; 
+            cursor: move; 
+            font-size: 20px; 
+            padding: 5px 10px 5px 5px; /* 掴みやすく余白を確保 */
+            user-select: none;
+            touch-action: none; /* スマホでの誤作動防止 */
+        }
         
         .line-title { font-size: 14px; font-weight: bold; color: #007bff; text-decoration: underline; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
         .status-badge { padding: 1px 4px; border-radius: 3px; font-weight: bold; font-size: 10px; white-space: nowrap; border: 1.5px solid; }
@@ -65,7 +70,7 @@
 
     window.onload = function() { 
         refreshList(); 
-        initSortable(); // 並び替え機能を初期化
+        initSortable();
     };
 
     function saveData() { 
@@ -73,15 +78,13 @@
         localStorage.setItem('lineAppOrder', JSON.stringify(lineOrder)); 
     }
 
-    // 長押し・ドラッグ並び替えの初期化
     function initSortable() {
         const el = document.getElementById('linesContainer');
         Sortable.create(el, {
-            handle: '.line-container', // どこを持っても並び替え可能
+            handle: '.drag-handle', // 【重要】ここを触ったときだけドラッグ可能
             animation: 150,
             ghostClass: 'sortable-ghost',
             onEnd: function() {
-                // 並び替えが終わったら lineOrder を更新して保存
                 const newOrder = Array.from(el.querySelectorAll('.line-container')).map(item => item.id);
                 lineOrder = newOrder;
                 saveData();
@@ -94,12 +97,9 @@
         if (!lineName) return; 
         const id = 'line-' + Date.now(); 
         dataStore[id] = { name: lineName, started: false, logs: [], targetTime: "" }; 
-        
-        // 【改善】一番「上」に追加する
-        lineOrder.unshift(id); 
-        
-        refreshList(); // 画面全体を再描画
-        saveData(); 
+        lineOrder.unshift(id); // 一番上に追加
+        saveData();
+        refreshList();
     }
 
     function renderLine(id, data) {
@@ -149,7 +149,6 @@
         if (data.started) refreshLineOnly(id);
     }
 
-    // --- 以降のロジックは v5.1 と同様 ---
     function toggleTarget(id) { const el = document.getElementById(id + '-targetSetup'); el.style.display = (el.style.display === 'flex') ? 'none' : 'flex'; }
     function setTargetTime(id, val) { dataStore[id].targetTime = val; saveData(); updateStats(id); }
     function startLine(id) { const input = document.getElementById(id + '-startInput'); const val = parseInt(input.value); if (isNaN(val)) return alert("数値を入力してください"); dataStore[id].started = true; dataStore[id].logs = [{ rem: val, ts: Date.now() }]; document.getElementById(id + '-setup').style.display = 'none'; document.getElementById(id + '-main').style.display = 'block'; saveData(); refreshLineOnly(id); }
@@ -198,6 +197,7 @@
     function refreshList() { document.getElementById('linesContainer').innerHTML = ""; lineOrder.forEach(id => { if (dataStore[id]) renderLine(id, dataStore[id]); }); }
     function fmtTime(d) { return d.getHours() + ":" + d.getMinutes().toString().padStart(2, '0'); }
 
+    // Service Worker 登録
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').then(() => { console.log('Service Worker Registered'); });
     }

@@ -1,28 +1,34 @@
-const CACHE_NAME = 'prod-man-v6.4';
+const CACHE_NAME = 'prod-man-v6.6-offline';
+
+// ここに書かれたファイルは、インストール時にスマホの中に「ダウンロード」されます
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js'
 ];
 
-// インストール時にキャッシュを作成
+// インストール時にキャッシュを保存
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
+      console.log('Opened cache and adding files');
       return cache.addAll(urlsToCache);
     })
   );
 });
 
-// 古いバージョンのキャッシュを完全に削除
+// 古いバージョンのキャッシュを掃除
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Old cache deleted:', cacheName);
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -32,13 +38,13 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// ネットワーク優先（Network First）の戦略に修正
-// ネットが繋がれば最新を、ダメならキャッシュを表示
+// 通信リクエストを横取りする処理（ここがオフラインの要！）
 self.addEventListener('fetch', (event) => {
   event.respondWith(
+    // 1. まずは通常通りインターネット（ネットワーク）を見に行く
     fetch(event.request)
       .then((response) => {
-        // ネットワーク成功。最新をキャッシュに保存して返す
+        // ネットに繋がっていれば、最新のデータをスマホのキャッシュにも上書き保存する
         const resClone = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, resClone);
@@ -46,8 +52,16 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        // ネットワーク失敗（オフラインなど）。キャッシュから返す
-        return caches.match(event.request);
+        // 2. ネットに繋がっていない（オフライン）場合は、スマホの中のキャッシュから返す！
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // GitHub Pages特有のURL対策（〇〇.html と書いてなくてもトップページを返す）
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html');
+          }
+        });
       })
   );
 });

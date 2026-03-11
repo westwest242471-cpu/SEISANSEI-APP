@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prod-man-v6.6-offline-v2';
+const CACHE_NAME = 'prod-man-v6.7-offline'; // ← v6.6 から v6.7 などの新しい名前に変更！
 
 const urlsToCache = [
   './',
@@ -63,3 +63,4 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
+

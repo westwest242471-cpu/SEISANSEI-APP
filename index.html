@@ -262,7 +262,23 @@ body {
     function toggleTarget(id) { const el = document.getElementById(id + '-targetSetup'); el.style.display = (el.style.display === 'flex') ? 'none' : 'flex'; }
     function startLine(id) { const input = document.getElementById(id + '-startInput'); const val = parseInt(input.value); if (isNaN(val)) return; dataStore[id].started = true; dataStore[id].logs = [{ rem: val, ts: Date.now() }]; saveData(); refreshLineOnly(id); document.getElementById(id + '-setup').style.display = 'none'; document.getElementById(id + '-main').style.display = 'block'; }
     function record(id) { const input = document.getElementById(id + '-currInput'); const curr = parseInt(input.value); if (isNaN(curr)) return; dataStore[id].logs.push({ rem: curr, ts: Date.now() }); saveData(); refreshLineOnly(id); input.value = ""; }
-
+ // 各入力欄でEnterキー（確定）が押された時の処理
+document.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        const activeEl = document.activeElement;
+        // もし今、残数入力欄（currInput）にフォーカスがあれば
+        if (activeEl && activeEl.id.endsWith('-currInput')) {
+            const lineId = activeEl.id.replace('-currInput', '');
+            record(lineId); // 記録を実行
+            activeEl.blur(); // キーボードを閉じる（連続入力したい場合はここを消す）
+        }
+        // もし開始残数入力欄（startInput）にフォーカスがあれば
+        if (activeEl && activeEl.id.endsWith('-startInput')) {
+            const lineId = activeEl.id.replace('-startInput', '');
+            startLine(lineId); // 開始を実行
+        }
+    }
+});
     function refreshLineOnly(id) {
         const ds = dataStore[id]; const tbody = document.getElementById(id + '-log'); tbody.innerHTML = "";
         ds.logs.forEach((log, i) => {
@@ -301,5 +317,6 @@ body {
 </script>
 </body>
 </html>
+
 
 

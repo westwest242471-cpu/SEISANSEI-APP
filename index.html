@@ -10,8 +10,22 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
-        body { font-family: sans-serif; margin: 4px; background-color: #f0f0f0; font-size: 13px; line-height: 1.1; padding-bottom: 80px;overscroll-behavior-y: none;}
-        .line-container { background: white; padding: 6px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 8px; border-left: 4px solid #007bff; position: relative; }
+       /* Google Fontsから丸ゴシックを読み込み */
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
+
+html, body { 
+    overscroll-behavior: none; /* ←★上下左右すべての引っ張りを禁止！ */
+}
+
+body { 
+    font-family: 'M PLUS Rounded 1c', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; 
+    margin: 8px; 
+    background-color: #fffefa; 
+    color: #333; 
+    font-size: 14px; 
+    line-height: 1.2; 
+    padding-bottom: 100px; 
+}
         
         /* 並べ替えモード時のスタイル */
         .reorder-active .line-container { border: 1.5px dashed #007bff; opacity: 0.9; }
@@ -287,4 +301,5 @@
 </script>
 </body>
 </html>
+
 

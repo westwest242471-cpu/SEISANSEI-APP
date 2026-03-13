@@ -76,11 +76,7 @@ body {
         .line-body { display: block; margin-top: 4px; }
         .line-container.collapsed .line-body { display: none; }
         .line-container.collapsed { border-left-color: #ccc; background: #fafafa; margin-bottom: 4px; }
-        <div id="installBanner" style="display:none; background:#fff3e0; padding:10px; border-radius:12px; margin-bottom:10px; border:2px solid #ffa726; text-align:center;">
-        <p style="margin:0 0 8px 0; font-weight:bold; color:#e65100;">📱 スマホにインストールして使いやすく！</p>
-        <button id="installBtn" class="btn-blue" style="background:#ffa726; width:100%;">アプリをインストールする</button>
-　　　　　</div>
-        
+
         .top-btns { display: flex; gap: 4px; margin-bottom: 6px; }
         .btn-blue { background: #007bff; color: white; flex: 2; padding: 10px; font-size: 13px; font-weight: bold; border-radius: 4px; border:none; }
         .btn-reorder-toggle { background: #666; color: white; flex: 1; padding: 10px; font-size: 11px; font-weight: bold; border-radius: 4px; border:none; }
@@ -318,48 +314,8 @@ document.addEventListener('keypress', function (e) {
 
     function refreshList() { document.getElementById('linesContainer').innerHTML = ""; lineOrder.forEach(id => renderLine(id, dataStore[id])); }
     function fmtTime(d) { return d.getHours() + ":" + d.getMinutes().toString().padStart(2, '0'); }
-
-    let deferredPrompt;
-const installBanner = document.getElementById('installBanner');
-const installBtn = document.getElementById('installBtn');
-
-// ブラウザが「インストール可能」と判断したときに発動
-window.addEventListener('beforeinstallprompt', (e) => {
-    // デフォルトの挙動を止めて、自前のボタンを出せるようにする
-    e.preventDefault();
-    deferredPrompt = e;
-    // インストールされていない場合だけ、バナーを表示する
-    installBanner.style.display = 'block';
-});
-
-installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        // インストール画面を表示
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            console.log('User accepted the install prompt');
-        }
-        deferredPrompt = null;
-        installBanner.style.display = 'none';
-    }
-});
-
-// インストールが完了したらバナーを消す
-window.addEventListener('appinstalled', () => {
-    installBanner.style.display = 'none';
-    deferredPrompt = null;
-    console.log('PWA installed');
-});
-
-// すでにアプリとして起動している（インストール済み）なら、最初から表示しない
-if (window.matchMedia('(display-mode: standalone)').matches) {
-    installBanner.style.display = 'none';
-}
 </script>
 </body>
 </html>
-
-
 
 

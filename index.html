@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v7.1</title>
+    <title>武蔵野 生産性管理 v7.2</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -150,7 +150,7 @@ body {
     window.onload = function() { refreshList(); initSortable(); initInstallLogic(); };
     function saveData() { localStorage.setItem('lineAppData', JSON.stringify(dataStore)); localStorage.setItem('lineAppOrder', JSON.stringify(lineOrder)); }
 
-    // ★インストールロジック
+    // インストールロジック
     function initInstallLogic() {
         let deferredPrompt;
         const banner = document.getElementById('installBanner');
@@ -229,14 +229,12 @@ body {
     function closeModal() { document.getElementById('customModalOverlay').style.display = 'none'; if(history.state && history.state.modal) history.back(); }
     window.onpopstate = () => document.getElementById('customModalOverlay').style.display = 'none';
 
-    // ★自動フォーカス機能付き追加
     function addNewLine(name) { 
         const id = 'line-' + Date.now();
         dataStore[id] = { name: name, started: false, logs: [], targetTime: "", collapsed: false };
         lineOrder.unshift(id); 
         saveData(); 
         refreshList();
-        // 追加された直後に、そのラインの「開始残数」にカーソルを合わせる
         setTimeout(() => {
             const input = document.getElementById(id + '-startInput');
             if(input) {
@@ -255,7 +253,7 @@ body {
                     <div class="line-info">
                         <div class="drag-handle">⠿</div>
                         <div class="toggle-btn" onclick="toggleCollapse('${id}')">${icon}</div>
-                        <span class="line-title" onclick="openInputModal('名前を変更', '${data.name}', (val)=>{ dataStore['${id}'].name=val; saveData(); refreshLineOnly('${id}'); })">${data.name}</span>
+                        <span class="line-title" onclick="openInputModal('名前を変更', '${data.name}', (val)=>{ dataStore['${id}'].name=val; saveData(); refreshList(); })">${data.name}</span>
                     </div>
                     <div style="display:flex; gap:3px;">
                         <div class="status-badge avg-badge">平均:<span id="${id}-headTotal">0.0</span></div>
@@ -305,7 +303,6 @@ body {
     function setTargetTime(id, val) { dataStore[id].targetTime = val; saveData(); updateStats(id); }
     function toggleTarget(id) { const el = document.getElementById(id + '-targetSetup'); el.style.display = (el.style.display === 'flex') ? 'none' : 'flex'; }
     
-    // ★開始時も次の入力欄へフォーカス
     function startLine(id) { 
         const input = document.getElementById(id + '-startInput'); 
         const val = parseInt(input.value); 
@@ -313,7 +310,7 @@ body {
         dataStore[id].started = true; 
         dataStore[id].logs = [{ rem: val, ts: Date.now() }]; 
         saveData(); 
-        refreshList(); // UI全体を一度更新
+        refreshList(); 
         setTimeout(() => {
             const nextInput = document.getElementById(id + '-currInput');
             if(nextInput) nextInput.focus();
@@ -360,8 +357,10 @@ document.addEventListener('keypress', function (e) {
     function updateStats(id) {
         const ds = dataStore[id]; if (!ds.started || ds.logs.length === 0) return;
         const last = ds.logs[ds.logs.length-1]; const avg = (ds.logs[0].rem - last.rem) / ((last.ts - ds.logs[0].ts) / 3600000);
-        document.getElementById(id+'-headTotal').innerText = isFinite(avg) ? avg.toFixed(1) : "0.0";
-        document.getElementById(id+'-eta').innerText = avg > 0 ? fmtTime(new Date(last.ts + (last.rem / avg) * 3600000)) : "--:--";
+        const headTotal = document.getElementById(id+'-headTotal');
+        if (headTotal) headTotal.innerText = isFinite(avg) ? avg.toFixed(1) : "0.0";
+        const eta = document.getElementById(id+'-eta');
+        if (eta) eta.innerText = avg > 0 ? fmtTime(new Date(last.ts + (last.rem / avg) * 3600000)) : "--:--";
     }
 
     function startFullResetFlow() {

@@ -553,8 +553,9 @@ tr:last-child td { border-bottom: none; }
         if(archiveStore.length === 0) {
             body.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">まだ履歴がありません。日次締めを行うとここに保存されます。</div>';
         } else {
-            archiveStore.forEach(day => {
-                let html = `<div class="history-day"><div class="history-day-header">${day.date}</div>`;
+            archiveStore.forEach((day, idx) => {
+                let html = `<div class="history-day">
+                    <div class="history-day-header editable" style="display:inline-block; margin-bottom:8px;" onclick="openInputModal('日付を修正', '${day.date}', (v) => { archiveStore[${idx}].date=v; saveData(); openHistoryModal(); })">📅 ${day.date} ✎</div>`;
                 if(day.items && day.items.length > 0) {
                     day.items.forEach(item => {
                         html += `<div class="history-item">

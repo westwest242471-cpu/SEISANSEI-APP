@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v7.6</title>
+    <title>武蔵野 生産性管理 v7.7</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,7 +24,7 @@
     --text-main: #1e293b;    
     --text-muted: #64748b;   
     --border: #e2e8f0;       
-    --ctrl-height: 40px;     /* 上下の余白を圧縮するため48px→40pxに変更 */
+    --ctrl-height: 32px;     /* 超圧縮: 40px -> 32px */
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
     --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
@@ -35,24 +35,24 @@ html, body { overscroll-behavior: none; }
 body { 
     font-family: 'Inter', 'M PLUS Rounded 1c', sans-serif; 
     margin: 0; 
-    padding: 8px 6px 100px; /* 余白を圧縮 */
+    padding: 6px 4px 100px; /* 超圧縮 */
     background-color: var(--bg-color); 
     color: var(--text-main); 
-    font-size: 13px; 
-    line-height: 1.3;
+    font-size: 12px; 
+    line-height: 1.2;
     -webkit-font-smoothing: antialiased;
 }
 
 #installBanner {
     display: none; background: linear-gradient(to right, #fffbeb, #fef3c7); 
-    padding: 12px; border-radius: 10px; margin-bottom: 8px;
+    padding: 8px; border-radius: 8px; margin-bottom: 6px;
     border: 1px solid #fde68a; text-align: center;
     box-shadow: var(--shadow-sm);
 }
 
 button {
-    font-family: inherit; font-size: 13px; font-weight: 700;
-    border: none; border-radius: 8px; cursor: pointer;
+    font-family: inherit; font-size: 12px; font-weight: 700;
+    border: none; border-radius: 6px; cursor: pointer;
     transition: background-color 0.2s, opacity 0.2s, box-shadow 0.2s;
     display: inline-flex; align-items: center; justify-content: center;
     user-select: none;
@@ -62,26 +62,29 @@ button {
 button:active { opacity: 0.7; }
 
 input[type="number"], input[type="time"], input[type="text"] {
-    font-family: inherit; font-size: 15px; font-weight: 600;
+    font-family: inherit; font-size: 13px; font-weight: 600;
     color: var(--text-main); background: var(--surface);
-    border: 2px solid var(--border); border-radius: 8px;
+    border: 1px solid var(--border); border-radius: 6px;
     height: var(--ctrl-height); box-sizing: border-box;
-    padding: 0 10px; width: 100%; transition: all 0.2s;
+    padding: 0 6px; width: 100%; transition: all 0.2s;
 }
-input[type="number"] { width: 85px; }
+input[type="number"] { width: 75px; } /* 圧縮 */
 input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
 
-.top-btns { display: flex; gap: 6px; margin-bottom: 8px; }
+.top-btns { display: flex; gap: 4px; margin-bottom: 6px; }
 .btn-primary { 
     background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
-    color: white; flex: 2; height: 42px; border-radius: 10px; font-size: 14px; 
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+    color: white; flex: 2; height: 36px; border-radius: 8px; font-size: 13px; 
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
 }
 .btn-reorder-toggle { 
-    background: #475569; color: white; flex: 1; height: 42px; border-radius: 10px; font-size: 12px;
-    box-shadow: 0 4px 8px rgba(71, 85, 105, 0.2);
+    background: #475569; color: white; flex: 1; height: 36px; border-radius: 8px; font-size: 11px;
 }
-.btn-reorder-toggle.active { background: var(--warning); box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3); }
+.btn-history {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; flex: 1; height: 36px; border-radius: 8px; font-size: 11px;
+    box-shadow: 0 2px 6px rgba(139, 92, 246, 0.2);
+}
+.btn-reorder-toggle.active { background: var(--warning); color: white; }
 
 .reorder-active .line-container { 
     transform: scale(0.98); opacity: 0.9;
@@ -89,168 +92,180 @@ input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px
     box-shadow: none; background: #f8fafc;
 }
 .drag-handle { 
-    display: none; width: 32px; height: 32px; 
-    background: var(--border); border-radius: 6px; 
+    display: none; width: 28px; height: 28px; 
+    background: var(--border); border-radius: 4px; 
     align-items: center; justify-content: center; 
-    font-size: 18px; color: var(--text-muted); cursor: grab; margin-right: 8px;
+    font-size: 16px; color: var(--text-muted); cursor: grab; margin-right: 6px;
 }
 .reorder-active .drag-handle { display: flex; }
 
 .line-container {
     background: var(--surface);
-    border-radius: 12px; margin-bottom: 8px; /* カード間隔を圧縮 */
-    box-shadow: var(--shadow-md); border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 8px; margin-bottom: 6px; /* 限界圧縮 */
+    box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.8);
     overflow: hidden; transition: all 0.3s ease;
 }
-.line-container.collapsed { background: #f8fafc; opacity: 0.8; box-shadow: var(--shadow-sm); margin-bottom: 4px; }
+.line-container.collapsed { background: #f8fafc; opacity: 0.8; margin-bottom: 4px; border: 1px solid var(--border); }
 .line-container.collapsed .line-body { display: none; }
 
 header { 
     display: flex; justify-content: space-between; align-items: center; 
-    padding: 8px 12px; background: rgba(255,255,255,0.7); /* ヘッダー周辺を圧縮 */
+    padding: 6px 8px; background: rgba(255,255,255,0.7);
     border-bottom: 1px solid var(--border);
 }
-.line-info { display: flex; align-items: center; gap: 8px; flex-grow: 1; overflow: hidden; }
+.line-info { display: flex; align-items: center; gap: 6px; flex-grow: 1; overflow: hidden; }
 
 .toggle-btn { 
-    font-size: 12px; color: var(--text-muted); background: #f1f5f9; 
-    border-radius: 50%; width: 26px; height: 26px; 
+    font-size: 11px; color: var(--text-muted); background: #f1f5f9; 
+    border-radius: 50%; width: 22px; height: 22px; 
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; flex-shrink: 0; transition: transform 0.2s;
 }
 
 .line-title { 
-    font-size: 14px; font-weight: 700; color: var(--text-main); 
+    font-size: 13px; font-weight: 700; color: var(--text-main); 
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-    max-width: 140px; padding: 2px 4px; border-radius: 4px;
+    max-width: 140px; padding: 2px; border-radius: 4px;
 }
 .line-title:active { background: #f1f5f9; }
 
 .header-actions { display: flex; gap: 4px; align-items: center; }
 
 .status-badge { 
-    padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10px; 
+    padding: 2px 4px; border-radius: 4px; font-weight: 700; font-size: 9px; 
     background: #ecfdf5; color: var(--success); border: 1px solid #a7f3d0;
 }
         
-.btn-sm { padding: 0 8px; height: 28px; font-size: 10px; border-radius: 6px; color: white; }
+.btn-sm { padding: 0 6px; height: 24px; font-size: 9px; border-radius: 4px; color: white; }
 .btn-orange { background: var(--warning); }
 .btn-gray { background: var(--text-muted); }
-.btn-red { background: var(--danger); box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2); }
+.btn-red { background: var(--danger); }
 
-.line-body { padding: 12px; } /* コンテンツエリアも圧縮 */
-.controls { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.line-body { padding: 8px; } /* 超圧縮 */
+.controls { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
 
 .btn-start { 
     background: var(--primary); color: white; width: auto;
-    height: var(--ctrl-height); padding: 0 16px; font-size: 14px;
+    height: var(--ctrl-height); padding: 0 12px; font-size: 12px;
 }
 .btn-record { 
     background: linear-gradient(135deg, var(--success), #059669); color: white; 
-    height: var(--ctrl-height); padding: 0 12px; font-size: 13px;
-    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+    height: var(--ctrl-height); padding: 0 10px; font-size: 12px;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 .btn-break { 
     background: linear-gradient(135deg, var(--info), #0891b2); color: white; 
-    height: var(--ctrl-height); padding: 0 10px; font-size: 11px;
+    height: var(--ctrl-height); padding: 0 8px; font-size: 10px;
 }
 
 .prediction-display { 
     flex-grow: 1; background: linear-gradient(to right, #fef3c7, #fef08a);
-    border-radius: 8px; display: flex; flex-direction: column; 
+    border-radius: 6px; display: flex; flex-direction: column; 
     align-items: center; justify-content: center; height: var(--ctrl-height);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
 }
-.prediction-display span:first-child { font-size: 9px; color: #b45309; font-weight: 700; text-transform: uppercase; }
-.prediction-display .eta-time { font-size: 14px; font-weight: 700; color: #92400e; }
+.prediction-display span:first-child { font-size: 8px; color: #b45309; font-weight: 700; text-transform: uppercase; }
+.prediction-display .eta-time { font-size: 12px; font-weight: 700; color: #92400e; }
 
 .target-setup-area {
-    background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    margin-bottom: 10px;
+    background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-bottom: 6px;
 }
 
 table { 
     width: 100%; border-collapse: separate; border-spacing: 0; 
-    margin-top: 6px; overflow: hidden; border-radius: 8px;
+    margin-top: 4px; overflow: hidden; border-radius: 6px;
     border: 1px solid var(--border);
 }
-th, td { padding: 8px 4px; text-align: center; } /* セルの上下間隔を圧縮 */
+th, td { padding: 4px; text-align: center; } /* セル高さを限界まで圧縮 */
 th { 
-    background: #f8fafc; font-size: 10px; color: var(--text-muted); 
+    background: #f8fafc; font-size: 9px; color: var(--text-muted); 
     font-weight: 600; border-bottom: 1px solid var(--border);
 }
-td { font-size: 13px; border-bottom: 1px solid var(--border); background: var(--surface); }
+td { font-size: 11px; border-bottom: 1px solid var(--border); background: var(--surface); }
 tr:last-child td { border-bottom: none; }
 
 .editable { 
     color: var(--primary-dark); text-decoration: underline; text-decoration-style: dotted; 
-    text-underline-offset: 4px; cursor: pointer; font-weight: 700; 
+    text-underline-offset: 2px; cursor: pointer; font-weight: 700; 
 }
 .btn-row-del { 
-    color: #cbd5e1; background: none; border: none; font-size: 18px; 
-    width: 28px; height: 28px; border-radius: 50%;
+    color: #cbd5e1; background: none; border: none; font-size: 14px; 
+    width: 24px; height: 24px; border-radius: 50%;
     transition: all 0.2s; display: inline-flex; 
 }
 .btn-row-del:active { background: #fee2e2; color: var(--danger); transform: scale(1); }
 
-/* モーダルの上部配置と設定 */
-#customModalOverlay { 
+/* モーダル群 */
+.modal-overlay { 
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px);
     z-index: 9999; justify-content: center; 
-    align-items: flex-start; /* 上寄せに設定 */
-    padding-top: 10vh; /* キーボード領域を避けるために上から10%に配置 */
+    align-items: flex-start;
+    padding-top: 10vh;
     animation: fadeIn 0.2s ease;
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .modal-card { 
-    background: var(--surface); width: 85%; max-width: 320px; 
-    padding: 20px; border-radius: 16px; text-align: center;
+    background: var(--surface); width: 90%; max-width: 320px; 
+    padding: 16px; border-radius: 12px; text-align: center;
     box-shadow: var(--shadow-lg); transform: translateY(0);
     animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* 上から降りてくるアニメーションに変更 */
-@keyframes slideDown { from { opacity: 0; transform: translateY(-20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-.modal-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; color: var(--text-main); }
-.modal-text { font-size: 13px; margin-bottom: 16px; line-height: 1.4; color: var(--text-muted); }
-.modal-btns { display: flex; gap: 10px; margin-top: 8px; }
-.modal-btns button { flex: 1; height: 44px; border-radius: 8px; font-size: 14px; }
+.modal-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; color: var(--text-main); }
+.modal-text { font-size: 12px; margin-bottom: 12px; line-height: 1.4; color: var(--text-muted); }
+.modal-btns { display: flex; gap: 8px; margin-top: 8px; }
+.modal-btns button { flex: 1; height: 40px; border-radius: 6px; font-size: 13px; }
 
-.system-footer { margin-top: 30px; padding: 20px 0; text-align: center; }
-.credit { font-size: 11px; color: var(--text-muted); margin-bottom: 20px; font-weight: 600; }
-.btn-full-reset { 
-    background: transparent; color: var(--text-muted); border: 1px solid var(--border);
-    padding: 10px; border-radius: 8px; font-size: 11px; width: 90%; max-width: 300px;
+/* 履歴閲覧用モーダル (画面いっぱいに広げる) */
+#historyModalOverlay {
+    padding-top: 5vh;
 }
+.history-card {
+    max-height: 85vh; display: flex; flex-direction: column; width: 95%; max-width: 400px;
+}
+.history-body {
+    flex-grow: 1; overflow-y: auto; text-align: left; padding: 4px;
+}
+.history-day {
+    background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px; margin-bottom: 8px;
+}
+.history-day-header {
+    font-weight: 700; font-size: 13px; color: var(--primary-dark); margin-bottom: 6px; border-bottom: 1px solid var(--border); padding-bottom: 4px;
+}
+.history-item {
+    display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; color: var(--text-main);
+}
+
+.system-footer { margin-top: 24px; padding: 16px 0; text-align: center; }
+.credit { font-size: 10px; color: var(--text-muted); margin-bottom: 16px; font-weight: 600; }
+.btn-full-reset { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 8px; border-radius: 6px; font-size: 10px; width: 90%; max-width: 300px; margin-bottom: 6px; }
 .btn-full-reset:active { background: #fee2e2; color: var(--danger); border-color: var(--danger); }
+.btn-day-close { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 700; width: 90%; max-width: 300px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
+
     </style>
 </head>
 <body>
 
-<div id="installBanner">
-    <div style="font-size:12px; font-weight:800; margin-bottom:6px; color:#b45309;">📱 アプリとして保存して便利に使う</div>
-    <button id="installBtn" class="btn-primary" style="width:100%; height:40px; background:linear-gradient(135deg, #f59e0b, #d97706);">インストールする</button>
-    <div id="iosMessage" style="display:none; font-size:11px; color:#92400e; margin-top:5px; font-weight:600;">
-        iPhoneは <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_Share_Icon.svg/40px-IOS_Share_Icon.svg.png" width="12" style="vertical-align: middle;"> から「ホーム画面に追加」
-    </div>
-</div>
-
 <div class="top-btns">
-    <button class="btn-primary" onclick="openInputModal('新しいライン名を入力', '', (val) => { addNewLine(val) })">＋ 新ライン追加</button>
-    <button id="reorderBtn" class="btn-reorder-toggle" onclick="toggleReorderMode()">⇅ 並べ替え</button>
+    <button class="btn-primary" onclick="openInputModal('新しいライン名を入力', '', (val) => { addNewLine(val) })">＋ 追加</button>
+    <button id="reorderBtn" class="btn-reorder-toggle" onclick="toggleReorderMode()">⇅ 順序</button>
+    <button class="btn-history" onclick="openHistoryModal()">📋 履歴</button>
 </div>
 
 <div id="linesContainer"></div>
 
 <div class="system-footer">
-    <div class="credit">Developed by: 埼玉工場 加工1F 西 <span style="margin-left:8px; opacity:0.6;">Ver 7.6</span></div>
+    <div class="credit">Developed by: 埼玉工場 加工1F 西 <span style="margin-left:6px; opacity:0.6;">Ver 7.7 (Compact)</span></div>
+    <button class="btn-day-close" onclick="closeDayFlow()">🌅 業務終了 (日次締め)</button>
     <button class="btn-full-reset" onclick="startFullResetFlow()">⚠️ 全てのデータを削除して初期化</button>
 </div>
 
-<div id="customModalOverlay" onclick="closeModal()">
+<div id="customModalOverlay" class="modal-overlay" onclick="closeModal()">
     <div class="modal-card" onclick="event.stopPropagation()">
         <div id="modalTitle" class="modal-title">確認</div>
         <div id="modalText" class="modal-text"></div>
@@ -264,46 +279,40 @@ tr:last-child td { border-bottom: none; }
     </div>
 </div>
 
+<div id="historyModalOverlay" class="modal-overlay" onclick="closeHistoryModal()">
+    <div class="modal-card history-card" onclick="event.stopPropagation()">
+        <div class="modal-title">過去の履歴データ</div>
+        <div id="historyBody" class="history-body"></div>
+        <div class="modal-btns">
+            <button style="background:var(--primary); color:white;" onclick="closeHistoryModal()">閉じる</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    // エラーハンドリングを追加し、ファイルアプリ等でのlocalStorageアクセス拒否による強制停止を回避
     let dataStore = {};
     let lineOrder = [];
+    let archiveStore = [];
+    
     try {
         dataStore = JSON.parse(localStorage.getItem('lineAppData')) || {};
         lineOrder = JSON.parse(localStorage.getItem('lineAppOrder')) || [];
+        archiveStore = JSON.parse(localStorage.getItem('lineAppArchive')) || [];
     } catch (error) {
-        console.warn("LocalStorage access is restricted. Data will not be saved across sessions.", error);
+        console.warn("LocalStorage access is restricted.", error);
     }
 
     let sortableInstance = null;
     let isReorderMode = false;
 
-    window.onload = function() { refreshList(); initSortable(); initInstallLogic(); };
+    window.onload = function() { refreshList(); initSortable(); };
     
     function saveData() { 
         try {
             localStorage.setItem('lineAppData', JSON.stringify(dataStore)); 
             localStorage.setItem('lineAppOrder', JSON.stringify(lineOrder)); 
+            localStorage.setItem('lineAppArchive', JSON.stringify(archiveStore));
         } catch(e) {}
-    }
-
-    function initInstallLogic() {
-        let deferredPrompt;
-        const banner = document.getElementById('installBanner');
-        const btn = document.getElementById('installBtn');
-        const iosMsg = document.getElementById('iosMessage');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e; banner.style.display = 'block';
-        });
-        btn.addEventListener('click', async () => {
-            if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; banner.style.display = 'none'; }
-        });
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-        if (isIOS && !isStandalone) {
-            banner.style.display = 'block'; btn.style.display = 'none'; iosMsg.style.display = 'block';
-        }
     }
 
     function toggleReorderMode() {
@@ -315,29 +324,27 @@ tr:last-child td { border-bottom: none; }
             btn.classList.add('active');
             btn.innerText = "✓ 完了";
             container.classList.add('reorder-active');
-            sortableInstance.option('disabled', false);
+            if(sortableInstance) sortableInstance.option('disabled', false);
         } else {
             btn.classList.remove('active');
-            btn.innerText = "⇅ 並べ替え";
+            btn.innerText = "⇅ 順序";
             container.classList.remove('reorder-active');
-            sortableInstance.option('disabled', true);
+            if(sortableInstance) sortableInstance.option('disabled', true);
             saveData();
         }
     }
 
     function initSortable() {
-        const el = document.getElementById('linesContainer');
-        sortableInstance = Sortable.create(el, { 
-            handle: '.drag-handle',
-            animation: 200, 
-            easing: "cubic-bezier(0.25, 1, 0.5, 1)",
-            disabled: true,
-            ghostClass: "sortable-ghost",
-            onEnd: function() { 
-                lineOrder = Array.from(el.querySelectorAll('.line-container')).map(item => item.id); 
-            } 
-        });
+        if(typeof Sortable !== 'undefined') {
+            const el = document.getElementById('linesContainer');
+            sortableInstance = Sortable.create(el, { 
+                handle: '.drag-handle', animation: 200, disabled: true, ghostClass: "sortable-ghost",
+                onEnd: function() { lineOrder = Array.from(el.querySelectorAll('.line-container')).map(item => item.id); } 
+            });
+        }
     }
+
+    function safePushState() { try { history.pushState({modal: true}, ""); } catch(e) {} }
 
     function openConfirmModal(title, text, confirmColor, callback) {
         document.getElementById('modalTitle').innerText = title;
@@ -347,7 +354,7 @@ tr:last-child td { border-bottom: none; }
         btn.style.background = confirmColor;
         btn.onclick = () => { callback(); closeModal(); };
         document.getElementById('customModalOverlay').style.display = 'flex';
-        try { history.pushState({modal: true}, ""); } catch(e) {}
+        safePushState();
     }
 
     function openInputModal(title, defaultVal, callback) {
@@ -359,75 +366,68 @@ tr:last-child td { border-bottom: none; }
         const btn = document.getElementById('modalConfirmBtn');
         btn.style.background = "var(--primary)";
         
-        btn.onclick = () => { 
-            if(input.value) { 
-                callback(input.value); 
-                closeModal(); 
-            } 
-        };
-        
-        // Enterキーで決定できるようにイベントリスナーを追加
-        input.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                btn.click();
-            }
-        }
+        btn.onclick = () => { if(input.value) { callback(input.value); closeModal(); } };
+        input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); btn.click(); } }
 
         document.getElementById('customModalOverlay').style.display = 'flex';
         setTimeout(() => { try { input.focus(); } catch(e){} }, 100);
-        try { history.pushState({modal: true}, ""); } catch(e) {}
+        safePushState();
     }
 
     function closeModal() { 
         document.getElementById('customModalOverlay').style.display = 'none'; 
         try { if(history.state && history.state.modal) history.back(); } catch(e) {} 
     }
-    window.onpopstate = () => document.getElementById('customModalOverlay').style.display = 'none';
+    
+    function closeHistoryModal() {
+        document.getElementById('historyModalOverlay').style.display = 'none'; 
+        try { if(history.state && history.state.modal) history.back(); } catch(e) {} 
+    }
+
+    window.onpopstate = () => {
+        document.getElementById('customModalOverlay').style.display = 'none';
+        document.getElementById('historyModalOverlay').style.display = 'none';
+    };
 
     function addNewLine(name) { 
         const id = 'line-' + Date.now();
         dataStore[id] = { name: name, started: false, logs: [], targetTime: "", collapsed: false };
         lineOrder.unshift(id); 
-        saveData(); 
-        refreshList();
+        saveData(); refreshList();
         setTimeout(() => {
             const input = document.getElementById(id + '-startInput');
-            if(input) {
-                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                try { input.focus(); } catch(e){}
-            }
+            if(input) { input.scrollIntoView({ behavior: 'smooth', block: 'center' }); try { input.focus(); } catch(e){} }
         }, 300);
     }
 
     function renderLine(id, data) {
         const isCollapsed = data.collapsed ? 'collapsed' : '';
-        const icon = data.collapsed ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>` : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>`;
+        const icon = data.collapsed ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>` : `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>`;
         const html = `
             <div class="line-container ${isCollapsed}" id="${id}">
                 <header>
                     <div class="line-info">
-                        <div class="drag-handle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h16M4 16h16"/></svg></div>
+                        <div class="drag-handle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h16M4 16h16"/></svg></div>
                         <div class="toggle-btn" onclick="toggleCollapse('${id}')">${icon}</div>
                         <span class="line-title" onclick="openInputModal('名前を変更', '${data.name}', (val)=>{ dataStore['${id}'].name=val; saveData(); refreshList(); })">${data.name}</span>
                     </div>
                     <div class="header-actions">
-                        <div class="status-badge">平均:<span id="${id}-headTotal" style="margin-left:3px;">0.0</span></div>
+                        <div class="status-badge">平均:<span id="${id}-headTotal" style="margin-left:2px;">0.0</span></div>
                         <button class="btn-sm btn-orange" onclick="toggleTarget('${id}')">目標</button>
-                        <button class="btn-sm btn-gray" onclick="openConfirmModal('リセット', 'このラインの記録をリセットしますか？', '#64748b', ()=>{ dataStore['${id}'].started=false; dataStore['${id}'].logs=[]; saveData(); refreshList(); })">RST</button>
-                        <button class="btn-sm btn-red" onclick="openConfirmModal('削除', 'このライン自体を削除しますか？', '#ef4444', ()=>{ delete dataStore['${id}']; lineOrder=lineOrder.filter(l=>l!=='${id}'); saveData(); refreshList(); })">×</button>
+                        <button class="btn-sm btn-gray" onclick="openConfirmModal('リセット', 'このラインをリセットしますか？', '#64748b', ()=>{ dataStore['${id}'].started=false; dataStore['${id}'].logs=[]; saveData(); refreshList(); })">RST</button>
+                        <button class="btn-sm btn-red" onclick="openConfirmModal('削除', '削除しますか？', '#ef4444', ()=>{ delete dataStore['${id}']; lineOrder=lineOrder.filter(l=>l!=='${id}'); saveData(); refreshList(); })">×</button>
                     </div>
                 </header>
                 <div class="line-body">
                     <div id="${id}-setup" class="controls" style="display: ${data.started ? 'none' : 'flex'}">
                         <input type="number" id="${id}-startInput" placeholder="開始の残数を入力" inputmode="numeric" pattern="\\d*" style="flex-grow:1;">
-                        <button class="btn-start" onclick="startLine('${id}')">スタート</button>
+                        <button class="btn-start" onclick="startLine('${id}')">開始</button>
                     </div>
                     <div id="${id}-main" style="display: ${data.started ? 'block' : 'none'}">
                         <div id="${id}-targetSetup" class="target-setup-area" style="display:none;">
-                            <span style="font-size:11px; font-weight:700; color:var(--text-muted);">目標時刻</span>
+                            <span style="font-size:10px; font-weight:700; color:var(--text-muted);">目標時刻</span>
                             <input type="time" id="${id}-targetInput" value="${data.targetTime || ''}" onchange="setTargetTime('${id}', this.value)" style="flex-grow:1;">
-                            <button class="btn-sm btn-gray" style="height:40px; border-radius:8px;" onclick="setTargetTime('${id}', '')">解除</button>
+                            <button class="btn-sm btn-gray" style="height:32px; border-radius:6px;" onclick="setTargetTime('${id}', '')">消去</button>
                         </div>
                         <div class="controls">
                             <input type="number" id="${id}-currInput" placeholder="残数" inputmode="numeric" pattern="\\d*">
@@ -436,10 +436,10 @@ tr:last-child td { border-bottom: none; }
                                 <span>予測</span>
                                 <span class="eta-time" id="${id}-eta">--:--</span>
                             </div>
-                            <button class="btn-break" onclick="promptBreak('${id}')">休憩</button>
+                            <button class="btn-break" onclick="promptBreak('${id}')">休</button>
                         </div>
                         <table>
-                            <thead><tr><th width="32%">時間</th><th width="26%">残数</th><th width="26%">個/h</th><th width="16%">-</th></tr></thead>
+                            <thead><tr><th width="32%">時間</th><th width="26%">残</th><th width="26%">/h</th><th width="16%">-</th></tr></thead>
                             <tbody id="${id}-log"></tbody>
                         </table>
                     </div>
@@ -449,12 +449,7 @@ tr:last-child td { border-bottom: none; }
         if (data.started) refreshLineOnly(id);
     }
 
-    function toggleCollapse(id) {
-        dataStore[id].collapsed = !dataStore[id].collapsed;
-        saveData();
-        refreshList(); // Collapse requires re-render to update the SVG icon cleanly, or we could just DOM manipulate. Refresh is fast enough.
-    }
-
+    function toggleCollapse(id) { dataStore[id].collapsed = !dataStore[id].collapsed; saveData(); refreshList(); }
     function setTargetTime(id, val) { dataStore[id].targetTime = val; saveData(); updateStats(id); }
     function toggleTarget(id) { const el = document.getElementById(id + '-targetSetup'); el.style.display = (el.style.display === 'flex') ? 'none' : 'flex'; }
     
@@ -462,14 +457,9 @@ tr:last-child td { border-bottom: none; }
         const input = document.getElementById(id + '-startInput'); 
         const val = parseInt(input.value); 
         if (isNaN(val)) return; 
-        dataStore[id].started = true; 
-        dataStore[id].logs = [{ rem: val, ts: Date.now() }]; 
-        saveData(); 
-        refreshList(); 
-        setTimeout(() => {
-            const nextInput = document.getElementById(id + '-currInput');
-            if(nextInput) { try { nextInput.focus(); } catch(e){} }
-        }, 100);
+        dataStore[id].started = true; dataStore[id].logs = [{ rem: val, ts: Date.now() }]; 
+        saveData(); refreshList(); 
+        setTimeout(() => { const nextInput = document.getElementById(id + '-currInput'); if(nextInput) { try { nextInput.focus(); } catch(e){} } }, 100);
     }
     
     function record(id) { 
@@ -477,122 +467,82 @@ tr:last-child td { border-bottom: none; }
         const curr = parseInt(input.value); 
         if (isNaN(curr)) return; 
         dataStore[id].logs.push({ rem: curr, ts: Date.now() }); 
-        saveData(); 
-        refreshLineOnly(id); 
-        input.value = ""; 
+        saveData(); refreshLineOnly(id); input.value = ""; 
     }
 
     function promptBreak(id) {
-        openInputModal('休憩時間を追加(分)', '75', (val) => {
+        openInputModal('休憩を追加(分)', '75', (val) => {
             const mins = parseInt(val);
-            if (!isNaN(mins) && mins > 0) {
-                dataStore[id].logs.push({ type: 'break', duration: mins, ts: Date.now() });
-                saveData();
-                refreshLineOnly(id);
-            }
+            if (!isNaN(mins) && mins > 0) { dataStore[id].logs.push({ type: 'break', duration: mins, ts: Date.now() }); saveData(); refreshLineOnly(id); }
         });
     }
 
     document.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             const activeEl = document.activeElement;
-            if (activeEl && activeEl.id.endsWith('-currInput')) {
-                const lineId = activeEl.id.replace('-currInput', '');
-                record(lineId);
-                activeEl.blur();
-            }
-            if (activeEl && activeEl.id.endsWith('-startInput')) {
-                const lineId = activeEl.id.replace('-startInput', '');
-                startLine(lineId);
-            }
+            if (activeEl && activeEl.id.endsWith('-currInput')) { record(activeEl.id.replace('-currInput', '')); activeEl.blur(); }
+            if (activeEl && activeEl.id.endsWith('-startInput')) { startLine(activeEl.id.replace('-startInput', '')); }
         }
     });
 
     function refreshLineOnly(id) {
-        const ds = dataStore[id]; 
-        const tbody = document.getElementById(id + '-log'); 
-        tbody.innerHTML = "";
-        
+        const ds = dataStore[id]; const tbody = document.getElementById(id + '-log'); tbody.innerHTML = "";
         ds.logs.sort((a,b) => a.ts - b.ts);
         
         ds.logs.forEach((log, i) => {
             if (log.type === 'break') {
                 let timeDisp = `<span class="editable" onclick="openInputModal('時間の修正', '${fmtTime(new Date(log.ts))}', (v)=>{ editRowTime('${id}', ${i}, v) })">${fmtTime(new Date(log.ts))}</span>`;
-                let durDisp = `<span class="editable" onclick="openInputModal('休憩の修正(分)', '${log.duration}', (v)=>{ dataStore['${id}'].logs[${i}].duration=parseInt(v); saveData(); refreshLineOnly('${id}'); })">☕ 休憩 ${log.duration}分</span>`;
-                tbody.insertAdjacentHTML('afterbegin', `<tr><td style="background:#f1f5f9; color:var(--text-muted); font-size:12px;">${timeDisp}</td><td colspan="2" style="background:#f1f5f9; font-size:13px; color:var(--info); font-weight:700;">${durDisp}</td><td style="background:#f1f5f9;"><button class="btn-row-del" onclick="openConfirmModal('削除', 'この休憩を削除しますか？', '#ef4444', ()=>{ dataStore['${id}'].logs.splice(${i}, 1); saveData(); refreshList(); })">×</button></td></tr>`);
+                let durDisp = `<span class="editable" onclick="openInputModal('休憩(分)', '${log.duration}', (v)=>{ dataStore['${id}'].logs[${i}].duration=parseInt(v); saveData(); refreshLineOnly('${id}'); })">☕ ${log.duration}分</span>`;
+                tbody.insertAdjacentHTML('afterbegin', `<tr><td style="color:var(--text-muted);">${timeDisp}</td><td colspan="2" style="color:var(--info); font-weight:700;">${durDisp}</td><td><button class="btn-row-del" onclick="openConfirmModal('削除', '削除しますか？', '#ef4444', ()=>{ dataStore['${id}'].logs.splice(${i}, 1); saveData(); refreshList(); })">×</button></td></tr>`);
             } else {
-                let timeDisp = `<span class="editable" onclick="openInputModal('時間の修正', '${fmtTime(new Date(log.ts))}', (v)=>{ editRowTime('${id}', ${i}, v) })">${fmtTime(new Date(log.ts))}</span>`;
-                let remDisp = `<span class="editable" onclick="openInputModal('残数の修正', '${log.rem}', (v)=>{ dataStore['${id}'].logs[${i}].rem=parseInt(v); saveData(); refreshLineOnly('${id}'); })">${log.rem}</span>`;
+                let timeDisp = `<span class="editable" onclick="openInputModal('修正', '${fmtTime(new Date(log.ts))}', (v)=>{ editRowTime('${id}', ${i}, v) })">${fmtTime(new Date(log.ts))}</span>`;
+                let remDisp = `<span class="editable" onclick="openInputModal('修正', '${log.rem}', (v)=>{ dataStore['${id}'].logs[${i}].rem=parseInt(v); saveData(); refreshLineOnly('${id}'); })">${log.rem}</span>`;
                 let rate = "-";
                 
                 let prevIdx = i - 1;
-                while (prevIdx >= 0 && dataStore[id].logs[prevIdx].type === 'break') {
-                    prevIdx--;
-                }
-                
+                while (prevIdx >= 0 && ds.logs[prevIdx].type === 'break') prevIdx--;
                 if (prevIdx >= 0) {
                     let pLog = ds.logs[prevIdx];
                     let breakSumMs = 0;
-                    for (let j = prevIdx + 1; j < i; j++) {
-                        if (ds.logs[j].type === 'break') {
-                            breakSumMs += ds.logs[j].duration * 60000;
-                        }
-                    }
+                    for (let j = prevIdx + 1; j < i; j++) if (ds.logs[j].type === 'break') breakSumMs += ds.logs[j].duration * 60000;
                     let elapsedMs = log.ts - pLog.ts - breakSumMs;
                     if (elapsedMs <= 0) elapsedMs = 1; 
-                    
                     rate = ((pLog.rem - log.rem) / (elapsedMs / 3600000)).toFixed(1);
                 }
-
-                tbody.insertAdjacentHTML('afterbegin', `<tr><td>${timeDisp}</td><td>${remDisp}</td><td style="font-weight:800;color:var(--danger)">${rate}</td><td><button class="btn-row-del" onclick="openConfirmModal('削除', 'この行を削除しますか？', '#ef4444', ()=>{ dataStore['${id}'].logs.splice(${i}, 1); if(dataStore['${id}'].logs.filter(l=>l.type!=='break').length===0)dataStore['${id}'].started=false; saveData(); refreshList(); })">×</button></td></tr>`);
+                tbody.insertAdjacentHTML('afterbegin', `<tr><td>${timeDisp}</td><td>${remDisp}</td><td style="font-weight:800;color:var(--danger)">${rate}</td><td><button class="btn-row-del" onclick="openConfirmModal('削除', '削除しますか？', '#ef4444', ()=>{ dataStore['${id}'].logs.splice(${i}, 1); if(dataStore['${id}'].logs.filter(l=>l.type!=='break').length===0)dataStore['${id}'].started=false; saveData(); refreshList(); })">×</button></td></tr>`);
             }
         });
         updateStats(id);
     }
 
     function editRowTime(id, index, input) {
-        const p = input.split(/[:：]/);
-        if(p.length < 2) return;
-        const d = new Date(dataStore[id].logs[index].ts);
-        d.setHours(p[0], p[1]);
-        dataStore[id].logs[index].ts = d.getTime();
-        dataStore[id].logs.sort((a,b)=>a.ts-b.ts);
+        const p = input.split(/[:：]/); if(p.length < 2) return;
+        const d = new Date(dataStore[id].logs[index].ts); d.setHours(p[0], p[1]);
+        dataStore[id].logs[index].ts = d.getTime(); dataStore[id].logs.sort((a,b)=>a.ts-b.ts);
         saveData(); refreshLineOnly(id);
     }
 
     function updateStats(id) {
         const ds = dataStore[id]; 
         if (!ds.started || ds.logs.length === 0) return;
-        
         const remLogs = ds.logs.filter(l => l.type !== 'break');
         if (remLogs.length < 2) {
-            const headTotal = document.getElementById(id+'-headTotal');
-            if (headTotal) headTotal.innerText = "0.0";
-            const eta = document.getElementById(id+'-eta');
-            if (eta) eta.innerText = "--:--";
+            const headTotal = document.getElementById(id+'-headTotal'); if (headTotal) headTotal.innerText = "0.0";
+            const eta = document.getElementById(id+'-eta'); if (eta) eta.innerText = "--:--";
             return;
         }
 
-        const first = remLogs[0];
-        const last = remLogs[remLogs.length-1];
-        
-        let breakSumMs = 0;
-        let breakAfterLastMs = 0;
+        const first = remLogs[0], last = remLogs[remLogs.length-1];
+        let breakSumMs = 0, breakAfterLastMs = 0;
         ds.logs.forEach(l => {
             if (l.type === 'break') {
-                if (l.ts >= first.ts && l.ts <= last.ts) {
-                    breakSumMs += l.duration * 60000;
-                } else if (l.ts > last.ts) {
-                    breakAfterLastMs += l.duration * 60000;
-                }
+                if (l.ts >= first.ts && l.ts <= last.ts) breakSumMs += l.duration * 60000;
+                else if (l.ts > last.ts) breakAfterLastMs += l.duration * 60000;
             }
         });
-
-        let elapsedMs = last.ts - first.ts - breakSumMs;
-        if (elapsedMs <= 0) elapsedMs = 1;
+        let elapsedMs = last.ts - first.ts - breakSumMs; if (elapsedMs <= 0) elapsedMs = 1;
 
         const avg = (first.rem - last.rem) / (elapsedMs / 3600000);
-        
         const headTotal = document.getElementById(id+'-headTotal');
         if (headTotal) headTotal.innerText = isFinite(avg) && avg > 0 ? avg.toFixed(1) : "0.0";
         
@@ -601,18 +551,71 @@ tr:last-child td { border-bottom: none; }
             if (avg > 0) {
                 let remainingHours = last.rem / avg;
                 eta.innerText = fmtTime(new Date(last.ts + breakAfterLastMs + remainingHours * 3600000));
-            } else {
-                eta.innerText = "--:--";
-            }
+            } else eta.innerText = "--:--";
         }
     }
 
+    function closeDayFlow() {
+        openConfirmModal("【日次締め】", "本日の全ラインの記録を履歴に保存し、明日のためにメイン画面をリセットします。よろしいですか？", "var(--success)", () => {
+            const now = new Date();
+            const dateStr = now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate() + " (" + ["日","月","火","水","木","金","土"][now.getDay()] + ")";
+            
+            let summaryList = [];
+            lineOrder.forEach(id => {
+                const ds = dataStore[id];
+                if(ds.started && ds.logs.length > 0) {
+                    let headTotal = document.getElementById(id+'-headTotal');
+                    let avg = headTotal ? headTotal.innerText : "0.0";
+                    let produced = 0;
+                    const remLogs = ds.logs.filter(l => l.type !== 'break');
+                    if(remLogs.length >= 2) produced = remLogs[0].rem - remLogs[remLogs.length-1].rem;
+                    summaryList.push({ name: ds.name, avg: avg, prod: produced });
+                }
+            });
+
+            if(summaryList.length > 0) {
+                archiveStore.unshift({ date: dateStr, ts: Date.now(), items: summaryList });
+                if(archiveStore.length > 30) archiveStore.pop(); // 直近30日のみ保存
+            }
+
+            lineOrder.forEach(id => {
+                dataStore[id].started = false;
+                dataStore[id].logs = [];
+            });
+            saveData();
+            refreshList();
+        });
+    }
+
+    function openHistoryModal() {
+        const body = document.getElementById('historyBody');
+        body.innerHTML = '';
+        if(archiveStore.length === 0) {
+            body.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">まだ履歴がありません。日次締めを行うとここに保存されます。</div>';
+        } else {
+            archiveStore.forEach(day => {
+                let html = `<div class="history-day">
+                    <div class="history-day-header">${day.date}</div>`;
+                if(day.items && day.items.length > 0) {
+                    day.items.forEach(item => {
+                        html += `<div class="history-item"><span>${item.name}</span><span>${item.prod}個 (平均: ${item.avg}/h)</span></div>`;
+                    });
+                } else {
+                    html += `<div class="history-item" style="color:#94a3b8;">記録なし</div>`;
+                }
+                html += `</div>`;
+                body.insertAdjacentHTML('beforeend', html);
+            });
+        }
+        document.getElementById('historyModalOverlay').style.display = 'flex';
+        safePushState();
+    }
+
     function startFullResetFlow() {
-        openConfirmModal("【データ初期化】", "全てのラインデータを削除して初期化します。よろしいですか？", "var(--danger)", () => {
-            try {
-                localStorage.clear(); 
-            } catch(e) {}
-            dataStore = {}; lineOrder = []; saveData(); refreshList();
+        openConfirmModal("【全て初期化】", "ライン設定・履歴を含めた全てのデータを完全に削除しますか？", "var(--danger)", () => {
+            try { localStorage.clear(); } catch(e){}
+            dataStore = {}; lineOrder = []; archiveStore = [];
+            saveData(); refreshList();
         });
     }
 

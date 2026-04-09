@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v7.7</title>
+    <title>武蔵野 生産性管理 v7.9</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,7 +24,7 @@
     --text-main: #1e293b;    
     --text-muted: #64748b;   
     --border: #e2e8f0;       
-    --ctrl-height: 32px;     /* 超圧縮: 40px -> 32px */
+    --ctrl-height: 32px;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
     --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
@@ -35,7 +35,7 @@ html, body { overscroll-behavior: none; }
 body { 
     font-family: 'Inter', 'M PLUS Rounded 1c', sans-serif; 
     margin: 0; 
-    padding: 6px 4px 100px; /* 超圧縮 */
+    padding: 6px 4px 100px;
     background-color: var(--bg-color); 
     color: var(--text-main); 
     font-size: 12px; 
@@ -68,7 +68,7 @@ input[type="number"], input[type="time"], input[type="text"] {
     height: var(--ctrl-height); box-sizing: border-box;
     padding: 0 6px; width: 100%; transition: all 0.2s;
 }
-input[type="number"] { width: 75px; } /* 圧縮 */
+input[type="number"] { width: 75px; }
 input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
 
 .top-btns { display: flex; gap: 4px; margin-bottom: 6px; }
@@ -101,7 +101,7 @@ input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px
 
 .line-container {
     background: var(--surface);
-    border-radius: 8px; margin-bottom: 6px; /* 限界圧縮 */
+    border-radius: 8px; margin-bottom: 6px;
     box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.8);
     overflow: hidden; transition: all 0.3s ease;
 }
@@ -141,22 +141,12 @@ header {
 .btn-gray { background: var(--text-muted); }
 .btn-red { background: var(--danger); }
 
-.line-body { padding: 8px; } /* 超圧縮 */
+.line-body { padding: 6px; }
 .controls { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
 
-.btn-start { 
-    background: var(--primary); color: white; width: auto;
-    height: var(--ctrl-height); padding: 0 12px; font-size: 12px;
-}
-.btn-record { 
-    background: linear-gradient(135deg, var(--success), #059669); color: white; 
-    height: var(--ctrl-height); padding: 0 10px; font-size: 12px;
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
-}
-.btn-break { 
-    background: linear-gradient(135deg, var(--info), #0891b2); color: white; 
-    height: var(--ctrl-height); padding: 0 8px; font-size: 10px;
-}
+.btn-start { background: var(--primary); color: white; width: auto; height: var(--ctrl-height); padding: 0 12px; font-size: 12px; }
+.btn-record { background: linear-gradient(135deg, var(--success), #059669); color: white; height: var(--ctrl-height); padding: 0 10px; font-size: 12px; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2); }
+.btn-break { background: linear-gradient(135deg, var(--info), #0891b2); color: white; height: var(--ctrl-height); padding: 0 8px; font-size: 10px; }
 
 .prediction-display { 
     flex-grow: 1; background: linear-gradient(to right, #fef3c7, #fef08a);
@@ -167,34 +157,17 @@ header {
 .prediction-display span:first-child { font-size: 8px; color: #b45309; font-weight: 700; text-transform: uppercase; }
 .prediction-display .eta-time { font-size: 12px; font-weight: 700; color: #92400e; }
 
-.target-setup-area {
-    background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    margin-bottom: 6px;
-}
+.target-setup-area { background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 6px; }
 
-table { 
-    width: 100%; border-collapse: separate; border-spacing: 0; 
-    margin-top: 4px; overflow: hidden; border-radius: 6px;
-    border: 1px solid var(--border);
-}
-th, td { padding: 4px; text-align: center; } /* セル高さを限界まで圧縮 */
-th { 
-    background: #f8fafc; font-size: 9px; color: var(--text-muted); 
-    font-weight: 600; border-bottom: 1px solid var(--border);
-}
+/* テーブルの極限圧縮と配置調整 */
+table { width: 100%; border-collapse: collapse; margin-top: 4px; border-radius: 4px; border: 1px solid var(--border); }
+th, td { padding: 2px 4px; text-align: center; } /* 上下の余白限界までカット */
+th { background: #f8fafc; font-size: 9px; color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border); }
 td { font-size: 11px; border-bottom: 1px solid var(--border); background: var(--surface); }
 tr:last-child td { border-bottom: none; }
 
-.editable { 
-    color: var(--primary-dark); text-decoration: underline; text-decoration-style: dotted; 
-    text-underline-offset: 2px; cursor: pointer; font-weight: 700; 
-}
-.btn-row-del { 
-    color: #cbd5e1; background: none; border: none; font-size: 14px; 
-    width: 24px; height: 24px; border-radius: 50%;
-    transition: all 0.2s; display: inline-flex; 
-}
+.editable { color: var(--primary-dark); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; cursor: pointer; font-weight: 700; }
+.btn-row-del { color: #cbd5e1; background: none; border: none; font-size: 14px; width: 24px; height: 24px; border-radius: 50%; transition: all 0.2s; display: inline-flex; margin: 0; }
 .btn-row-del:active { background: #fee2e2; color: var(--danger); transform: scale(1); }
 
 /* モーダル群 */
@@ -221,38 +194,27 @@ tr:last-child td { border-bottom: none; }
 .modal-btns { display: flex; gap: 8px; margin-top: 8px; }
 .modal-btns button { flex: 1; height: 40px; border-radius: 6px; font-size: 13px; }
 
-/* 履歴閲覧用モーダル (画面いっぱいに広げる) */
-#historyModalOverlay {
-    padding-top: 5vh;
-}
-.history-card {
-    max-height: 85vh; display: flex; flex-direction: column; width: 95%; max-width: 400px;
-}
-.history-body {
-    flex-grow: 1; overflow-y: auto; text-align: left; padding: 4px;
-}
-.history-day {
-    background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px; margin-bottom: 8px;
-}
-.history-day-header {
-    font-weight: 700; font-size: 13px; color: var(--primary-dark); margin-bottom: 6px; border-bottom: 1px solid var(--border); padding-bottom: 4px;
-}
-.history-item {
-    display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; color: var(--text-main);
-}
+#historyModalOverlay { padding-top: 5vh; }
+.history-card { max-height: 85vh; display: flex; flex-direction: column; width: 95%; max-width: 400px; }
+.history-body { flex-grow: 1; overflow-y: auto; text-align: left; padding: 4px; }
+.history-day { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+.history-day-header { font-weight: 700; font-size: 13px; color: var(--primary-dark); margin-bottom: 6px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+.history-item { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; color: var(--text-main); }
+.history-table { width: 100%; border-collapse: collapse; margin-top: 6px; margin-bottom: 12px; font-size: 10px; background: white; }
+.history-table th, .history-table td { padding: 3px 4px; border: 1px solid var(--border); text-align: center; }
+.history-table th { background: #f1f5f9; color: var(--text-muted); }
 
 .system-footer { margin-top: 24px; padding: 16px 0; text-align: center; }
 .credit { font-size: 10px; color: var(--text-muted); margin-bottom: 16px; font-weight: 600; }
-.btn-full-reset { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 8px; border-radius: 6px; font-size: 10px; width: 90%; max-width: 300px; margin-bottom: 6px; }
-.btn-full-reset:active { background: #fee2e2; color: var(--danger); border-color: var(--danger); }
 .btn-day-close { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 700; width: 90%; max-width: 300px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
-
+.btn-csv { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: none; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 700; width: 90%; max-width: 300px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3); }
+.btn-full-reset { background: var(--danger); color: white; border: none; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 700; width: 90%; max-width: 300px; margin-bottom: 6px; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
     </style>
 </head>
 <body>
 
 <div class="top-btns">
-    <button class="btn-primary" onclick="openInputModal('新しいライン名を入力', '', (val) => { addNewLine(val) })">＋ 追加</button>
+    <button class="btn-primary" onclick="openInputModal('新しいライン名を入力', '', function(val) { addNewLine(val); })">＋ 追加</button>
     <button id="reorderBtn" class="btn-reorder-toggle" onclick="toggleReorderMode()">⇅ 順序</button>
     <button class="btn-history" onclick="openHistoryModal()">📋 履歴</button>
 </div>
@@ -260,8 +222,9 @@ tr:last-child td { border-bottom: none; }
 <div id="linesContainer"></div>
 
 <div class="system-footer">
-    <div class="credit">Developed by: 埼玉工場 加工1F 西 <span style="margin-left:6px; opacity:0.6;">Ver 7.7 (Compact)</span></div>
+    <div class="credit">Developed by: 埼玉工場 加工1F 西 <span style="margin-left:6px; opacity:0.6;">Ver 7.9</span></div>
     <button class="btn-day-close" onclick="closeDayFlow()">🌅 業務終了 (日次締め)</button>
+    <button class="btn-csv" onclick="exportCSV()">📊 履歴をCSVで出力</button>
     <button class="btn-full-reset" onclick="startFullResetFlow()">⚠️ 全てのデータを削除して初期化</button>
 </div>
 
@@ -290,20 +253,28 @@ tr:last-child td { border-bottom: none; }
 </div>
 
 <script>
-    let dataStore = {};
-    let lineOrder = [];
-    let archiveStore = [];
+    /*
+     * HTML Viewer等でのブラウザ固有エラーを極力回避するため、
+     * 変数・関数定義を基礎的なES5環境にも耐え得るように var / 最適化をしております。
+     * また、History APIも致命的エラーの原因となるため完全に除去済です。
+     */
+    var dataStore = {};
+    var lineOrder = [];
+    var archiveStore = [];
     
     try {
-        dataStore = JSON.parse(localStorage.getItem('lineAppData')) || {};
-        lineOrder = JSON.parse(localStorage.getItem('lineAppOrder')) || [];
-        archiveStore = JSON.parse(localStorage.getItem('lineAppArchive')) || [];
+        var strData = localStorage.getItem('lineAppData');
+        var strOrder = localStorage.getItem('lineAppOrder');
+        var strArch = localStorage.getItem('lineAppArchive');
+        if(strData) { dataStore = JSON.parse(strData); }
+        if(strOrder) { lineOrder = JSON.parse(strOrder); }
+        if(strArch) { archiveStore = JSON.parse(strArch); }
     } catch (error) {
-        console.warn("LocalStorage access is restricted.", error);
+        // localStorage is strict offline
     }
 
-    let sortableInstance = null;
-    let isReorderMode = false;
+    var sortableInstance = null;
+    var isReorderMode = false;
 
     window.onload = function() { refreshList(); initSortable(); };
     
@@ -317,18 +288,13 @@ tr:last-child td { border-bottom: none; }
 
     function toggleReorderMode() {
         isReorderMode = !isReorderMode;
-        const btn = document.getElementById('reorderBtn');
-        const container = document.getElementById('linesContainer');
-        
+        var btn = document.getElementById('reorderBtn');
+        var container = document.getElementById('linesContainer');
         if (isReorderMode) {
-            btn.classList.add('active');
-            btn.innerText = "✓ 完了";
-            container.classList.add('reorder-active');
+            btn.classList.add('active'); btn.innerText = "✓ 完了"; container.classList.add('reorder-active');
             if(sortableInstance) sortableInstance.option('disabled', false);
         } else {
-            btn.classList.remove('active');
-            btn.innerText = "⇅ 順序";
-            container.classList.remove('reorder-active');
+            btn.classList.remove('active'); btn.innerText = "⇅ 順序"; container.classList.remove('reorder-active');
             if(sortableInstance) sortableInstance.option('disabled', true);
             saveData();
         }
@@ -336,86 +302,68 @@ tr:last-child td { border-bottom: none; }
 
     function initSortable() {
         if(typeof Sortable !== 'undefined') {
-            const el = document.getElementById('linesContainer');
+            var el = document.getElementById('linesContainer');
             sortableInstance = Sortable.create(el, { 
                 handle: '.drag-handle', animation: 200, disabled: true, ghostClass: "sortable-ghost",
-                onEnd: function() { lineOrder = Array.from(el.querySelectorAll('.line-container')).map(item => item.id); } 
+                onEnd: function() { lineOrder = Array.from(el.querySelectorAll('.line-container')).map(function(item){ return item.id; }); } 
             });
         }
     }
-
-    function safePushState() { try { history.pushState({modal: true}, ""); } catch(e) {} }
 
     function openConfirmModal(title, text, confirmColor, callback) {
         document.getElementById('modalTitle').innerText = title;
         document.getElementById('modalText').innerText = text;
         document.getElementById('modalInputArea').style.display = 'none';
-        const btn = document.getElementById('modalConfirmBtn');
+        var btn = document.getElementById('modalConfirmBtn');
         btn.style.background = confirmColor;
-        btn.onclick = () => { callback(); closeModal(); };
+        btn.onclick = function() { callback(); closeModal(); };
         document.getElementById('customModalOverlay').style.display = 'flex';
-        safePushState();
     }
 
     function openInputModal(title, defaultVal, callback) {
         document.getElementById('modalTitle').innerText = title;
         document.getElementById('modalText').innerText = "";
         document.getElementById('modalInputArea').style.display = 'block';
-        const input = document.getElementById('modalInput');
+        var input = document.getElementById('modalInput');
         input.value = defaultVal;
-        const btn = document.getElementById('modalConfirmBtn');
+        var btn = document.getElementById('modalConfirmBtn');
         btn.style.background = "var(--primary)";
-        
-        btn.onclick = () => { if(input.value) { callback(input.value); closeModal(); } };
-        input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); btn.click(); } }
-
+        btn.onclick = function() { if(input.value) { callback(input.value); closeModal(); } };
+        input.onkeydown = function(e) { if (e.key === 'Enter') { e.preventDefault(); btn.click(); } };
         document.getElementById('customModalOverlay').style.display = 'flex';
-        setTimeout(() => { try { input.focus(); } catch(e){} }, 100);
-        safePushState();
+        setTimeout(function() { try { input.focus(); } catch(e){} }, 100);
     }
 
-    function closeModal() { 
-        document.getElementById('customModalOverlay').style.display = 'none'; 
-        try { if(history.state && history.state.modal) history.back(); } catch(e) {} 
-    }
-    
-    function closeHistoryModal() {
-        document.getElementById('historyModalOverlay').style.display = 'none'; 
-        try { if(history.state && history.state.modal) history.back(); } catch(e) {} 
-    }
-
-    window.onpopstate = () => {
-        document.getElementById('customModalOverlay').style.display = 'none';
-        document.getElementById('historyModalOverlay').style.display = 'none';
-    };
+    function closeModal() { document.getElementById('customModalOverlay').style.display = 'none'; }
+    function closeHistoryModal() { document.getElementById('historyModalOverlay').style.display = 'none'; }
 
     function addNewLine(name) { 
-        const id = 'line-' + Date.now();
+        var id = 'line-' + Date.now();
         dataStore[id] = { name: name, started: false, logs: [], targetTime: "", collapsed: false };
-        lineOrder.unshift(id); 
-        saveData(); refreshList();
-        setTimeout(() => {
-            const input = document.getElementById(id + '-startInput');
+        lineOrder.unshift(id); saveData(); refreshList();
+        setTimeout(function() {
+            var input = document.getElementById(id + '-startInput');
             if(input) { input.scrollIntoView({ behavior: 'smooth', block: 'center' }); try { input.focus(); } catch(e){} }
         }, 300);
     }
 
     function renderLine(id, data) {
-        const isCollapsed = data.collapsed ? 'collapsed' : '';
-        const icon = data.collapsed ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>` : `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>`;
-        const html = `
+        if(!data) return;
+        var isCollapsed = data.collapsed ? 'collapsed' : '';
+        var icon = data.collapsed ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>` : `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>`;
+        var html = `
             <div class="line-container ${isCollapsed}" id="${id}">
                 <header>
                     <div class="line-info">
                         <div class="drag-handle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h16M4 16h16"/></svg></div>
                         <div class="toggle-btn" onclick="toggleCollapse('${id}')">${icon}</div>
-                        <span class="line-title" onclick="openInputModal('名前を変更', '${data.name}', (val)=>{ dataStore['${id}'].name=val; saveData(); refreshList(); })">${data.name}</span>
+                        <span class="line-title" onclick="openInputModal('名前を変更', '${data.name}', function(val){ dataStore['${id}'].name=val; saveData(); refreshList(); })">${data.name}</span>
                     </div>
                     <div class="header-actions">
                         <div class="status-badge">平均:<span id="${id}-headTotal" style="margin-left:2px;">0.0</span></div>
                         <button class="btn-sm btn-orange" onclick="toggleTarget('${id}')">目標</button>
-                        <button class="btn-sm btn-gray" onclick="openConfirmModal('リセット', 'このラインをリセットしますか？', '#64748b', ()=>{ dataStore['${id}'].started=false; dataStore['${id}'].logs=[]; saveData(); refreshList(); })">RST</button>
-                        <button class="btn-sm btn-red" onclick="openConfirmModal('削除', '削除しますか？', '#ef4444', ()=>{ delete dataStore['${id}']; lineOrder=lineOrder.filter(l=>l!=='${id}'); saveData(); refreshList(); })">×</button>
+                        <button class="btn-sm btn-gray" onclick="openConfirmModal('リセット', 'このラインをリセットしますか？', '#64748b', function(){ dataStore['${id}'].started=false; dataStore['${id}'].logs=[]; saveData(); refreshList(); })">RST</button>
+                        <button class="btn-sm btn-red" onclick="openConfirmModal('削除', '削除しますか？', '#ef4444', function(){ delete dataStore['${id}']; lineOrder=lineOrder.filter(function(l){ return l!=='${id}'; }); saveData(); refreshList(); })">×</button>
                     </div>
                 </header>
                 <div class="line-body">
@@ -439,7 +387,12 @@ tr:last-child td { border-bottom: none; }
                             <button class="btn-break" onclick="promptBreak('${id}')">休</button>
                         </div>
                         <table>
-                            <thead><tr><th width="32%">時間</th><th width="26%">残</th><th width="26%">/h</th><th width="16%">-</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th width="24%">時間</th><th width="20%">残数</th>
+                                    <th width="44%" style="text-align:left; padding-left:8px;">生産性 /h</th><th width="12%">-</th>
+                                </tr>
+                            </thead>
                             <tbody id="${id}-log"></tbody>
                         </table>
                     </div>
@@ -451,154 +404,171 @@ tr:last-child td { border-bottom: none; }
 
     function toggleCollapse(id) { dataStore[id].collapsed = !dataStore[id].collapsed; saveData(); refreshList(); }
     function setTargetTime(id, val) { dataStore[id].targetTime = val; saveData(); updateStats(id); }
-    function toggleTarget(id) { const el = document.getElementById(id + '-targetSetup'); el.style.display = (el.style.display === 'flex') ? 'none' : 'flex'; }
+    function toggleTarget(id) { var el = document.getElementById(id + '-targetSetup'); el.style.display = (el.style.display === 'flex') ? 'none' : 'flex'; }
     
     function startLine(id) { 
-        const input = document.getElementById(id + '-startInput'); 
-        const val = parseInt(input.value); 
+        var input = document.getElementById(id + '-startInput'); 
+        var val = parseInt(input.value); 
         if (isNaN(val)) return; 
         dataStore[id].started = true; dataStore[id].logs = [{ rem: val, ts: Date.now() }]; 
         saveData(); refreshList(); 
-        setTimeout(() => { const nextInput = document.getElementById(id + '-currInput'); if(nextInput) { try { nextInput.focus(); } catch(e){} } }, 100);
+        setTimeout(function() { var nextInput = document.getElementById(id + '-currInput'); if(nextInput) { try { nextInput.focus(); } catch(e){} } }, 100);
     }
     
     function record(id) { 
-        const input = document.getElementById(id + '-currInput'); 
-        const curr = parseInt(input.value); 
+        var input = document.getElementById(id + '-currInput'); 
+        var curr = parseInt(input.value); 
         if (isNaN(curr)) return; 
         dataStore[id].logs.push({ rem: curr, ts: Date.now() }); 
         saveData(); refreshLineOnly(id); input.value = ""; 
     }
 
     function promptBreak(id) {
-        openInputModal('休憩を追加(分)', '75', (val) => {
-            const mins = parseInt(val);
+        openInputModal('休憩を追加(分)', '75', function(val) {
+            var mins = parseInt(val);
             if (!isNaN(mins) && mins > 0) { dataStore[id].logs.push({ type: 'break', duration: mins, ts: Date.now() }); saveData(); refreshLineOnly(id); }
         });
     }
 
     document.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
-            const activeEl = document.activeElement;
-            if (activeEl && activeEl.id.endsWith('-currInput')) { record(activeEl.id.replace('-currInput', '')); activeEl.blur(); }
-            if (activeEl && activeEl.id.endsWith('-startInput')) { startLine(activeEl.id.replace('-startInput', '')); }
+            var activeEl = document.activeElement;
+            if (activeEl && activeEl.id.indexOf('-currInput') > -1) { record(activeEl.id.replace('-currInput', '')); activeEl.blur(); }
+            if (activeEl && activeEl.id.indexOf('-startInput') > -1) { startLine(activeEl.id.replace('-startInput', '')); }
         }
     });
 
     function refreshLineOnly(id) {
-        const ds = dataStore[id]; const tbody = document.getElementById(id + '-log'); tbody.innerHTML = "";
-        ds.logs.sort((a,b) => a.ts - b.ts);
+        var ds = dataStore[id]; var tbody = document.getElementById(id + '-log'); tbody.innerHTML = "";
+        ds.logs.sort(function(a,b) { return a.ts - b.ts; });
         
-        ds.logs.forEach((log, i) => {
+        ds.logs.forEach(function(log, i) {
             if (log.type === 'break') {
-                let timeDisp = `<span class="editable" onclick="openInputModal('時間の修正', '${fmtTime(new Date(log.ts))}', (v)=>{ editRowTime('${id}', ${i}, v) })">${fmtTime(new Date(log.ts))}</span>`;
-                let durDisp = `<span class="editable" onclick="openInputModal('休憩(分)', '${log.duration}', (v)=>{ dataStore['${id}'].logs[${i}].duration=parseInt(v); saveData(); refreshLineOnly('${id}'); })">☕ ${log.duration}分</span>`;
-                tbody.insertAdjacentHTML('afterbegin', `<tr><td style="color:var(--text-muted);">${timeDisp}</td><td colspan="2" style="color:var(--info); font-weight:700;">${durDisp}</td><td><button class="btn-row-del" onclick="openConfirmModal('削除', '削除しますか？', '#ef4444', ()=>{ dataStore['${id}'].logs.splice(${i}, 1); saveData(); refreshList(); })">×</button></td></tr>`);
+                var timeDisp = `<span class="editable" onclick="openInputModal('時間の修正', '${fmtTime(new Date(log.ts))}', function(v){ editRowTime('${id}', ${i}, v) })">${fmtTime(new Date(log.ts))}</span>`;
+                var durDisp = `<span class="editable" onclick="openInputModal('休憩(分)', '${log.duration}', function(v){ dataStore['${id}'].logs[${i}].duration=parseInt(v); saveData(); refreshLineOnly('${id}'); })">☕ ${log.duration}分</span>`;
+                tbody.insertAdjacentHTML('afterbegin', `<tr><td style="color:var(--text-muted);">${timeDisp}</td><td colspan="2" style="color:var(--info); font-weight:700; text-align:left; padding-left:8px;">${durDisp}</td><td><button class="btn-row-del" onclick="openConfirmModal('削除', '削除しますか？', '#ef4444', function(){ dataStore['${id}'].logs.splice(${i}, 1); saveData(); refreshList(); })">×</button></td></tr>`);
             } else {
-                let timeDisp = `<span class="editable" onclick="openInputModal('修正', '${fmtTime(new Date(log.ts))}', (v)=>{ editRowTime('${id}', ${i}, v) })">${fmtTime(new Date(log.ts))}</span>`;
-                let remDisp = `<span class="editable" onclick="openInputModal('修正', '${log.rem}', (v)=>{ dataStore['${id}'].logs[${i}].rem=parseInt(v); saveData(); refreshLineOnly('${id}'); })">${log.rem}</span>`;
-                let rate = "-";
+                var timeDisp = `<span class="editable" onclick="openInputModal('修正', '${fmtTime(new Date(log.ts))}', function(v){ editRowTime('${id}', ${i}, v) })">${fmtTime(new Date(log.ts))}</span>`;
+                var remDisp = `<span class="editable" onclick="openInputModal('修正', '${log.rem}', function(v){ dataStore['${id}'].logs[${i}].rem=parseInt(v); saveData(); refreshLineOnly('${id}'); })">${log.rem}</span>`;
+                var rate = "-";
                 
-                let prevIdx = i - 1;
+                var prevIdx = i - 1;
                 while (prevIdx >= 0 && ds.logs[prevIdx].type === 'break') prevIdx--;
                 if (prevIdx >= 0) {
-                    let pLog = ds.logs[prevIdx];
-                    let breakSumMs = 0;
-                    for (let j = prevIdx + 1; j < i; j++) if (ds.logs[j].type === 'break') breakSumMs += ds.logs[j].duration * 60000;
-                    let elapsedMs = log.ts - pLog.ts - breakSumMs;
+                    var pLog = ds.logs[prevIdx];
+                    var breakSumMs = 0;
+                    for (var j = prevIdx + 1; j < i; j++) if (ds.logs[j].type === 'break') breakSumMs += ds.logs[j].duration * 60000;
+                    var elapsedMs = log.ts - pLog.ts - breakSumMs;
                     if (elapsedMs <= 0) elapsedMs = 1; 
                     rate = ((pLog.rem - log.rem) / (elapsedMs / 3600000)).toFixed(1);
                 }
-                tbody.insertAdjacentHTML('afterbegin', `<tr><td>${timeDisp}</td><td>${remDisp}</td><td style="font-weight:800;color:var(--danger)">${rate}</td><td><button class="btn-row-del" onclick="openConfirmModal('削除', '削除しますか？', '#ef4444', ()=>{ dataStore['${id}'].logs.splice(${i}, 1); if(dataStore['${id}'].logs.filter(l=>l.type!=='break').length===0)dataStore['${id}'].started=false; saveData(); refreshList(); })">×</button></td></tr>`);
+                tbody.insertAdjacentHTML('afterbegin', `<tr><td>${timeDisp}</td><td>${remDisp}</td><td style="font-weight:900;color:var(--danger);text-align:left;padding-left:8px;font-size:13px;">${rate}</td><td><button class="btn-row-del" onclick="openConfirmModal('削除', '削除しますか？', '#ef4444', function(){ dataStore['${id}'].logs.splice(${i}, 1); if(dataStore['${id}'].logs.filter(function(l){ return l.type!=='break'; }).length===0)dataStore['${id}'].started=false; saveData(); refreshList(); })">×</button></td></tr>`);
             }
         });
         updateStats(id);
     }
 
     function editRowTime(id, index, input) {
-        const p = input.split(/[:：]/); if(p.length < 2) return;
-        const d = new Date(dataStore[id].logs[index].ts); d.setHours(p[0], p[1]);
-        dataStore[id].logs[index].ts = d.getTime(); dataStore[id].logs.sort((a,b)=>a.ts-b.ts);
+        var p = input.split(/[:：]/); if(p.length < 2) return;
+        var d = new Date(dataStore[id].logs[index].ts); d.setHours(p[0], p[1]);
+        dataStore[id].logs[index].ts = d.getTime(); dataStore[id].logs.sort(function(a,b){ return a.ts-b.ts; });
         saveData(); refreshLineOnly(id);
     }
 
     function updateStats(id) {
-        const ds = dataStore[id]; 
+        var ds = dataStore[id]; 
         if (!ds.started || ds.logs.length === 0) return;
-        const remLogs = ds.logs.filter(l => l.type !== 'break');
+        var remLogs = ds.logs.filter(function(l) { return l.type !== 'break'; });
         if (remLogs.length < 2) {
-            const headTotal = document.getElementById(id+'-headTotal'); if (headTotal) headTotal.innerText = "0.0";
-            const eta = document.getElementById(id+'-eta'); if (eta) eta.innerText = "--:--";
+            var headTotal = document.getElementById(id+'-headTotal'); if (headTotal) headTotal.innerText = "0.0";
+            var eta = document.getElementById(id+'-eta'); if (eta) eta.innerText = "--:--";
             return;
         }
 
-        const first = remLogs[0], last = remLogs[remLogs.length-1];
-        let breakSumMs = 0, breakAfterLastMs = 0;
-        ds.logs.forEach(l => {
+        var first = remLogs[0], last = remLogs[remLogs.length-1];
+        var breakSumMs = 0, breakAfterLastMs = 0;
+        ds.logs.forEach(function(l) {
             if (l.type === 'break') {
                 if (l.ts >= first.ts && l.ts <= last.ts) breakSumMs += l.duration * 60000;
                 else if (l.ts > last.ts) breakAfterLastMs += l.duration * 60000;
             }
         });
-        let elapsedMs = last.ts - first.ts - breakSumMs; if (elapsedMs <= 0) elapsedMs = 1;
+        var elapsedMs = last.ts - first.ts - breakSumMs; if (elapsedMs <= 0) elapsedMs = 1;
 
-        const avg = (first.rem - last.rem) / (elapsedMs / 3600000);
-        const headTotal = document.getElementById(id+'-headTotal');
+        var avg = (first.rem - last.rem) / (elapsedMs / 3600000);
+        var headTotal = document.getElementById(id+'-headTotal');
         if (headTotal) headTotal.innerText = isFinite(avg) && avg > 0 ? avg.toFixed(1) : "0.0";
         
-        const eta = document.getElementById(id+'-eta');
+        var eta = document.getElementById(id+'-eta');
         if (eta) {
             if (avg > 0) {
-                let remainingHours = last.rem / avg;
+                var remainingHours = last.rem / avg;
                 eta.innerText = fmtTime(new Date(last.ts + breakAfterLastMs + remainingHours * 3600000));
             } else eta.innerText = "--:--";
         }
     }
 
     function closeDayFlow() {
-        openConfirmModal("【日次締め】", "本日の全ラインの記録を履歴に保存し、明日のためにメイン画面をリセットします。よろしいですか？", "var(--success)", () => {
-            const now = new Date();
-            const dateStr = now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate() + " (" + ["日","月","火","水","木","金","土"][now.getDay()] + ")";
+        openConfirmModal("【日次締め】", "全ラインの記録を現在の表のデータごと履歴に保存し、明日のためにメイン画面をリセットします。宜しいですか？", "var(--success)", function() {
+            var now = new Date();
+            var dateStr = now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate() + " (" + ["日","月","火","水","木","金","土"][now.getDay()] + ")";
             
-            let summaryList = [];
-            lineOrder.forEach(id => {
-                const ds = dataStore[id];
+            var summaryList = [];
+            lineOrder.forEach(function(id) {
+                var ds = dataStore[id];
                 if(ds.started && ds.logs.length > 0) {
-                    let headTotal = document.getElementById(id+'-headTotal');
-                    let avg = headTotal ? headTotal.innerText : "0.0";
-                    let produced = 0;
-                    const remLogs = ds.logs.filter(l => l.type !== 'break');
+                    var headTotal = document.getElementById(id+'-headTotal');
+                    var avg = headTotal ? headTotal.innerText : "0.0";
+                    var produced = 0;
+                    var remLogs = ds.logs.filter(function(l) { return l.type !== 'break'; });
                     if(remLogs.length >= 2) produced = remLogs[0].rem - remLogs[remLogs.length-1].rem;
-                    summaryList.push({ name: ds.name, avg: avg, prod: produced });
+                    summaryList.push({ name: ds.name, avg: avg, prod: produced, logs: JSON.parse(JSON.stringify(ds.logs)) }); // deep copy
                 }
             });
 
             if(summaryList.length > 0) {
                 archiveStore.unshift({ date: dateStr, ts: Date.now(), items: summaryList });
-                if(archiveStore.length > 30) archiveStore.pop(); // 直近30日のみ保存
+                if(archiveStore.length > 30) archiveStore.pop();
             }
 
-            lineOrder.forEach(id => {
-                dataStore[id].started = false;
-                dataStore[id].logs = [];
-            });
-            saveData();
-            refreshList();
+            lineOrder.forEach(function(id) { dataStore[id].started = false; dataStore[id].logs = []; });
+            saveData(); refreshList();
         });
     }
 
     function openHistoryModal() {
-        const body = document.getElementById('historyBody');
+        var body = document.getElementById('historyBody');
         body.innerHTML = '';
         if(archiveStore.length === 0) {
             body.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">まだ履歴がありません。日次締めを行うとここに保存されます。</div>';
         } else {
-            archiveStore.forEach(day => {
-                let html = `<div class="history-day">
-                    <div class="history-day-header">${day.date}</div>`;
+            archiveStore.forEach(function(day) {
+                var html = `<div class="history-day"><div class="history-day-header">${day.date}</div>`;
                 if(day.items && day.items.length > 0) {
-                    day.items.forEach(item => {
-                        html += `<div class="history-item"><span>${item.name}</span><span>${item.prod}個 (平均: ${item.avg}/h)</span></div>`;
+                    day.items.forEach(function(item) {
+                        html += `<div class="history-item">
+                            <span style="font-weight:700; color:var(--primary-dark);">${item.name}</span>
+                            <span>${item.prod}個 (平均: ${item.avg}/h)</span>
+                        </div>`;
+                        if (item.logs && item.logs.length > 0) {
+                            html += `<table class="history-table"><thead><tr><th width="30%">時間</th><th width="30%">残/休</th><th width="40%">実績/h</th></tr></thead><tbody>`;
+                            var pLog = null;
+                            item.logs.sort(function(a,b){return a.ts-b.ts;}).forEach(function(log, i) {
+                                var timeStr = new Date(log.ts).getHours() + ":" + new Date(log.ts).getMinutes().toString().padStart(2, '0');
+                                if (log.type === 'break') {
+                                    html += `<tr><td style="color:var(--text-muted);">${timeStr}</td><td style="color:var(--info); font-weight:bold;">☕ ${log.duration}分</td><td>-</td></tr>`;
+                                } else {
+                                    var rate = "-";
+                                    if(pLog !== null) {
+                                        var elapsed = (log.ts - pLog.ts) / 3600000;
+                                        if(elapsed > 0) rate = ((pLog.rem - log.rem) / elapsed).toFixed(1);
+                                    }
+                                    html += `<tr><td>${timeStr}</td><td>${log.rem}</td><td style="color:var(--danger); font-weight:bold;">${rate}</td></tr>`;
+                                    pLog = log;
+                                }
+                            });
+                            html += `</tbody></table>`;
+                        }
                     });
                 } else {
                     html += `<div class="history-item" style="color:#94a3b8;">記録なし</div>`;
@@ -608,18 +578,67 @@ tr:last-child td { border-bottom: none; }
             });
         }
         document.getElementById('historyModalOverlay').style.display = 'flex';
-        safePushState();
+    }
+
+    function exportCSV() {
+        var rows = [ ["日付", "ライン名", "総生産数", "平均(個/h)", "時刻", "種別", "データ枠"] ];
+        archiveStore.forEach(function(day) {
+            if(day.items) {
+                day.items.forEach(function(item) {
+                    if(item.logs && item.logs.length > 0) {
+                        item.logs.forEach(function(log) {
+                            var tStr = new Date(log.ts).getHours() + ":" + new Date(log.ts).getMinutes().toString().padStart(2, '0');
+                            if(log.type === 'break') rows.push([day.date, item.name, item.prod, item.avg, tStr, "休憩(分)", log.duration]);
+                            else rows.push([day.date, item.name, item.prod, item.avg, tStr, "残数", log.rem]);
+                        });
+                    } else {
+                        rows.push([day.date, item.name, item.prod, item.avg, "-", "データなし", "-"]);
+                    }
+                });
+            }
+        });
+
+        var now = new Date();
+        var dateStr = now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate() + " (現在進行中)";
+        lineOrder.forEach(function(id) {
+            var ds = dataStore[id];
+            if (ds.started && ds.logs.length > 0) {
+                var headTotal = document.getElementById(id+'-headTotal');
+                var avg = headTotal ? headTotal.innerText : "0.0";
+                var prod = 0;
+                var remLogs = ds.logs.filter(function(l){ return l.type !== 'break'; });
+                if(remLogs.length >= 2) prod = remLogs[0].rem - remLogs[remLogs.length-1].rem;
+                ds.logs.forEach(function(log) {
+                    var tStr = new Date(log.ts).getHours() + ":" + new Date(log.ts).getMinutes().toString().padStart(2, '0');
+                    if (log.type === 'break') rows.push([dateStr, ds.name, prod, avg, tStr, "休憩(分)", log.duration]);
+                    else rows.push([dateStr, ds.name, prod, avg, tStr, "残数", log.rem]);
+                });
+            }
+        });
+
+        var csvContent = "";
+        rows.forEach(function(r) { csvContent += r.map(function(c){ return '"' + String(c).replace(/"/g, '""') + '"'; }).join(",") + "\r\n"; });
+        
+        var bom = new Uint8Array([0xEF, 0xBB, 0xBF]); // Excel safe BOM
+        var blob = new Blob([bom, csvContent], { type: "text/csv;charset=utf-8;" });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.href = url;
+        link.download = "生産性管理データ_" + now.getFullYear() + (now.getMonth()+1).toString().padStart(2, '0') + now.getDate().toString().padStart(2, '0') + ".csv";
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     function startFullResetFlow() {
-        openConfirmModal("【全て初期化】", "ライン設定・履歴を含めた全てのデータを完全に削除しますか？", "var(--danger)", () => {
+        openConfirmModal("【全て初期化】", "ライン設定・履歴を含めた全てのデータを完全に削除しますか？", "var(--danger)", function() {
             try { localStorage.clear(); } catch(e){}
-            dataStore = {}; lineOrder = []; archiveStore = [];
-            saveData(); refreshList();
+            dataStore = {}; lineOrder = []; archiveStore = []; saveData(); refreshList();
         });
     }
 
-    function refreshList() { document.getElementById('linesContainer').innerHTML = ""; lineOrder.forEach(id => renderLine(id, dataStore[id])); }
+    function refreshList() { document.getElementById('linesContainer').innerHTML = ""; lineOrder.forEach(function(id){ if(dataStore[id]) renderLine(id, dataStore[id]); }); }
     function fmtTime(d) { return d.getHours() + ":" + d.getMinutes().toString().padStart(2, '0'); }
 </script>
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prod-man-v8.1'; // ← v6.6 から v6.7 などの新しい名前に変更！
+const CACHE_NAME = 'prod-man-v8.2'; // ← v6.6 から v6.7 などの新しい名前に変更！
 
 const urlsToCache = [
   './',

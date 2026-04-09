@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v7.3</title>
+    <title>武蔵野 生産性管理 v7.4</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -69,6 +69,7 @@ body {
         input[type="number"], .modal-input { width: 90px; padding: 0 6px; border: 2px solid #007bff; border-radius: 4px; font-size: 16px; font-weight: bold; height: var(--ctrl-height); box-sizing: border-box; }
         .modal-input { width: 100%; margin-bottom: 15px; }
         .btn-record { padding: 0 10px; border-radius: 4px; border: none; font-size: 13px; font-weight: bold; background: #28a745; color: white; height: var(--ctrl-height); }
+        .btn-break { padding: 0 5px; border-radius: 4px; border: none; font-size: 10px; font-weight: bold; background: #17a2b8; color: white; height: var(--ctrl-height); }
         .prediction-display { flex-grow: 1; background: #fff9db; border: 1.5px solid #fab005; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: var(--ctrl-height); }
         .eta-time { font-size: 14px; font-weight: bold; }
         
@@ -123,8 +124,7 @@ body {
 <div id="linesContainer"></div>
 
 <div class="system-footer">
-    <!-- バージョン情報をここに追加しました -->
-    <div class="credit">Developed by: 埼玉工場 加工1F 西 <span style="margin-left:8px; opacity:0.8;">Ver 7.3</span></div>
+    <div class="credit">Developed by: 埼玉工場 加工1F 西 <span style="margin-left:8px; opacity:0.8;">Ver 7.4</span></div>
     <button class="btn-full-reset" onclick="startFullResetFlow()">⚠️ 全データを完全削除（初期化）</button>
 </div>
 
@@ -280,6 +280,7 @@ body {
                                 <span style="font-size:7px;">終了予測</span>
                                 <span class="eta-time" id="${id}-eta">--:--</span>
                             </div>
+                            <button class="btn-break" onclick="promptBreak('${id}')">休憩</button>
                         </div>
                         <table>
                             <thead><tr><th width="35%">時間</th><th width="25%">残数</th><th width="25%">個/h</th><th width="15%">削除</th></tr></thead>
@@ -318,36 +319,87 @@ body {
         }, 100);
     }
     
-    function record(id) { const input = document.getElementById(id + '-currInput'); const curr = parseInt(input.value); if (isNaN(curr)) return; dataStore[id].logs.push({ rem: curr, ts: Date.now() }); saveData(); refreshLineOnly(id); input.value = ""; }
-
-document.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        const activeEl = document.activeElement;
-        if (activeEl && activeEl.id.endsWith('-currInput')) {
-            const lineId = activeEl.id.replace('-currInput', '');
-            record(lineId);
-            activeEl.blur();
-        }
-        if (activeEl && activeEl.id.endsWith('-startInput')) {
-            const lineId = activeEl.id.replace('-startInput', '');
-            startLine(lineId);
-        }
+    function record(id) { 
+        const input = document.getElementById(id + '-currInput'); 
+        const curr = parseInt(input.value); 
+        if (isNaN(curr)) return; 
+        dataStore[id].logs.push({ rem: curr, ts: Date.now() }); 
+        saveData(); 
+        refreshLineOnly(id); 
+        input.value = ""; 
     }
-});
+
+    function promptBreak(id) {
+        openInputModal('休憩時間を追加(分)', '75', (val) => {
+            const mins = parseInt(val);
+            if (!isNaN(mins) && mins > 0) {
+                dataStore[id].logs.push({ type: 'break', duration: mins, ts: Date.now() });
+                saveData();
+                refreshLineOnly(id);
+            }
+        });
+    }
+
+    document.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            const activeEl = document.activeElement;
+            if (activeEl && activeEl.id.endsWith('-currInput')) {
+                const lineId = activeEl.id.replace('-currInput', '');
+                record(lineId);
+                activeEl.blur();
+            }
+            if (activeEl && activeEl.id.endsWith('-startInput')) {
+                const lineId = activeEl.id.replace('-startInput', '');
+                startLine(lineId);
+            }
+        }
+    });
 
     function refreshLineOnly(id) {
-        const ds = dataStore[id]; const tbody = document.getElementById(id + '-log'); tbody.innerHTML = "";
+        const ds = dataStore[id]; 
+        const tbody = document.getElementById(id + '-log'); 
+        tbody.innerHTML = "";
+        
+        ds.logs.sort((a,b) => a.ts - b.ts);
+        
         ds.logs.forEach((log, i) => {
-            let timeDisp = `<span class="editable" onclick="openInputModal('時間の修正', '${fmtTime(new Date(log.ts))}', (v)=>{ editRowTime('${id}', ${i}, v) })">${fmtTime(new Date(log.ts))}</span>`;
-            let remDisp = `<span class="editable" onclick="openInputModal('残数の修正', '${log.rem}', (v)=>{ dataStore['${id}'].logs[${i}].rem=parseInt(v); saveData(); refreshLineOnly('${id}'); })">${log.rem}</span>`;
-            let rate = i > 0 ? ((ds.logs[i-1].rem - ds.logs[i].rem) / ((ds.logs[i].ts - ds.logs[i-1].ts) / 3600000)).toFixed(1) : "-";
-            tbody.insertAdjacentHTML('afterbegin', `<tr><td>${timeDisp}</td><td>${remDisp}</td><td style="font-weight:bold;color:#d9534f">${rate}</td><td><button class="btn-row-del" onclick="openConfirmModal('行の削除', 'この行を削除しますか？', '#666', ()=>{ dataStore['${id}'].logs.splice(${i}, 1); if(dataStore['${id}'].logs.length===0)dataStore['${id}'].started=false; saveData(); refreshList(); })">×</button></td></tr>`);
+            if (log.type === 'break') {
+                let timeDisp = `<span class="editable" onclick="openInputModal('時間の修正', '${fmtTime(new Date(log.ts))}', (v)=>{ editRowTime('${id}', ${i}, v) })">${fmtTime(new Date(log.ts))}</span>`;
+                let durDisp = `<span class="editable" onclick="openInputModal('休憩の修正(分)', '${log.duration}', (v)=>{ dataStore['${id}'].logs[${i}].duration=parseInt(v); saveData(); refreshLineOnly('${id}'); })">休憩 ${log.duration}分</span>`;
+                tbody.insertAdjacentHTML('afterbegin', `<tr><td style="background:#e0f7fa;">${timeDisp}</td><td colspan="2" style="background:#e0f7fa; font-size:12px;">${durDisp}</td><td style="background:#e0f7fa;"><button class="btn-row-del" onclick="openConfirmModal('削除', 'この休憩を削除しますか？', '#666', ()=>{ dataStore['${id}'].logs.splice(${i}, 1); saveData(); refreshList(); })">×</button></td></tr>`);
+            } else {
+                let timeDisp = `<span class="editable" onclick="openInputModal('時間の修正', '${fmtTime(new Date(log.ts))}', (v)=>{ editRowTime('${id}', ${i}, v) })">${fmtTime(new Date(log.ts))}</span>`;
+                let remDisp = `<span class="editable" onclick="openInputModal('残数の修正', '${log.rem}', (v)=>{ dataStore['${id}'].logs[${i}].rem=parseInt(v); saveData(); refreshLineOnly('${id}'); })">${log.rem}</span>`;
+                let rate = "-";
+                
+                let prevIdx = i - 1;
+                while (prevIdx >= 0 && dataStore[id].logs[prevIdx].type === 'break') {
+                    prevIdx--;
+                }
+                
+                if (prevIdx >= 0) {
+                    let pLog = ds.logs[prevIdx];
+                    let breakSumMs = 0;
+                    for (let j = prevIdx + 1; j < i; j++) {
+                        if (ds.logs[j].type === 'break') {
+                            breakSumMs += ds.logs[j].duration * 60000;
+                        }
+                    }
+                    let elapsedMs = log.ts - pLog.ts - breakSumMs;
+                    if (elapsedMs <= 0) elapsedMs = 1; 
+                    
+                    rate = ((pLog.rem - log.rem) / (elapsedMs / 3600000)).toFixed(1);
+                }
+
+                tbody.insertAdjacentHTML('afterbegin', `<tr><td>${timeDisp}</td><td>${remDisp}</td><td style="font-weight:bold;color:#d9534f">${rate}</td><td><button class="btn-row-del" onclick="openConfirmModal('行の削除', 'この行を削除しますか？', '#666', ()=>{ dataStore['${id}'].logs.splice(${i}, 1); if(dataStore['${id}'].logs.filter(l=>l.type!=='break').length===0)dataStore['${id}'].started=false; saveData(); refreshList(); })">×</button></td></tr>`);
+            }
         });
         updateStats(id);
     }
 
     function editRowTime(id, index, input) {
         const p = input.split(/[:：]/);
+        if(p.length < 2) return;
         const d = new Date(dataStore[id].logs[index].ts);
         d.setHours(p[0], p[1]);
         dataStore[id].logs[index].ts = d.getTime();
@@ -356,12 +408,50 @@ document.addEventListener('keypress', function (e) {
     }
 
     function updateStats(id) {
-        const ds = dataStore[id]; if (!ds.started || ds.logs.length === 0) return;
-        const last = ds.logs[ds.logs.length-1]; const avg = (ds.logs[0].rem - last.rem) / ((last.ts - ds.logs[0].ts) / 3600000);
+        const ds = dataStore[id]; 
+        if (!ds.started || ds.logs.length === 0) return;
+        
+        const remLogs = ds.logs.filter(l => l.type !== 'break');
+        if (remLogs.length < 2) {
+            const headTotal = document.getElementById(id+'-headTotal');
+            if (headTotal) headTotal.innerText = "0.0";
+            const eta = document.getElementById(id+'-eta');
+            if (eta) eta.innerText = "--:--";
+            return;
+        }
+
+        const first = remLogs[0];
+        const last = remLogs[remLogs.length-1];
+        
+        let breakSumMs = 0;
+        let breakAfterLastMs = 0;
+        ds.logs.forEach(l => {
+            if (l.type === 'break') {
+                if (l.ts >= first.ts && l.ts <= last.ts) {
+                    breakSumMs += l.duration * 60000;
+                } else if (l.ts > last.ts) {
+                    breakAfterLastMs += l.duration * 60000;
+                }
+            }
+        });
+
+        let elapsedMs = last.ts - first.ts - breakSumMs;
+        if (elapsedMs <= 0) elapsedMs = 1;
+
+        const avg = (first.rem - last.rem) / (elapsedMs / 3600000);
+        
         const headTotal = document.getElementById(id+'-headTotal');
-        if (headTotal) headTotal.innerText = isFinite(avg) ? avg.toFixed(1) : "0.0";
+        if (headTotal) headTotal.innerText = isFinite(avg) && avg > 0 ? avg.toFixed(1) : "0.0";
+        
         const eta = document.getElementById(id+'-eta');
-        if (eta) eta.innerText = avg > 0 ? fmtTime(new Date(last.ts + (last.rem / avg) * 3600000)) : "--:--";
+        if (eta) {
+            if (avg > 0) {
+                let remainingHours = last.rem / avg;
+                eta.innerText = fmtTime(new Date(last.ts + breakAfterLastMs + remainingHours * 3600000));
+            } else {
+                eta.innerText = "--:--";
+            }
+        }
     }
 
     function startFullResetFlow() {
@@ -373,5 +463,6 @@ document.addEventListener('keypress', function (e) {
     function refreshList() { document.getElementById('linesContainer').innerHTML = ""; lineOrder.forEach(id => renderLine(id, dataStore[id])); }
     function fmtTime(d) { return d.getHours() + ":" + d.getMinutes().toString().padStart(2, '0'); }
 </script>
+
 </body>
 </html>

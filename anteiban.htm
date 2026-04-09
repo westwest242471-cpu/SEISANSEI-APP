@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v6.5</title>
+    <title>武蔵野 生産性管理 v7.3</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -14,7 +14,7 @@
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
 
 html, body { 
-    overscroll-behavior: none; /* ←★上下左右すべての引っ張りを禁止！ */
+    overscroll-behavior: none; /* 上下左右すべての引っ張りを禁止 */
 }
 
 body { 
@@ -26,6 +26,12 @@ body {
     line-height: 1.2; 
     padding-bottom: 100px; 
 }
+
+        /* インストールバナーのデザイン */
+        #installBanner {
+            display: none; background: #fffbe6; padding: 10px; border-radius: 6px; 
+            margin-bottom: 8px; border: 1.5px solid #fab005; text-align: center;
+        }
         
         /* 並べ替えモード時のスタイル */
         .reorder-active .line-container { border: 1.5px dashed #007bff; opacity: 0.9; }
@@ -101,6 +107,14 @@ body {
 </head>
 <body>
 
+<div id="installBanner">
+    <div style="font-size:12px; font-weight:bold; margin-bottom:5px;">📱 アプリとして保存</div>
+    <button id="installBtn" class="btn-blue" style="width:100%; background:#f39c12;">インストールする</button>
+    <div id="iosMessage" style="display:none; font-size:11px; color:#666; margin-top:5px;">
+        iPhoneは <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_Share_Icon.svg/40px-IOS_Share_Icon.svg.png" width="12"> から「ホーム画面に追加」
+    </div>
+</div>
+
 <div class="top-btns">
     <button class="btn-blue" onclick="openInputModal('新しいライン名を入力', '', (val) => { addNewLine(val) })">＋ 新ライン追加</button>
     <button id="reorderBtn" class="btn-reorder-toggle" onclick="toggleReorderMode()">⇅ 並べ替え</button>
@@ -109,7 +123,8 @@ body {
 <div id="linesContainer"></div>
 
 <div class="system-footer">
-    <div class="credit">Developed by: 埼玉工場 加工1F 西</div>
+    <!-- バージョン情報をここに追加しました -->
+    <div class="credit">Developed by: 埼玉工場 加工1F 西 <span style="margin-left:8px; opacity:0.8;">Ver 7.3</span></div>
     <button class="btn-full-reset" onclick="startFullResetFlow()">⚠️ 全データを完全削除（初期化）</button>
 </div>
 
@@ -133,8 +148,28 @@ body {
     let sortableInstance = null;
     let isReorderMode = false;
 
-    window.onload = function() { refreshList(); initSortable(); };
+    window.onload = function() { refreshList(); initSortable(); initInstallLogic(); };
     function saveData() { localStorage.setItem('lineAppData', JSON.stringify(dataStore)); localStorage.setItem('lineAppOrder', JSON.stringify(lineOrder)); }
+
+    // インストールロジック
+    function initInstallLogic() {
+        let deferredPrompt;
+        const banner = document.getElementById('installBanner');
+        const btn = document.getElementById('installBtn');
+        const iosMsg = document.getElementById('iosMessage');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); deferredPrompt = e; banner.style.display = 'block';
+        });
+        btn.addEventListener('click', async () => {
+            if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; banner.style.display = 'none'; }
+        });
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+        if (isIOS && !isStandalone) {
+            banner.style.display = 'block'; btn.style.display = 'none'; iosMsg.style.display = 'block';
+        }
+    }
 
     function toggleReorderMode() {
         isReorderMode = !isReorderMode;
@@ -158,16 +193,15 @@ body {
     function initSortable() {
         const el = document.getElementById('linesContainer');
         sortableInstance = Sortable.create(el, { 
-            handle: '.drag-handle', // ハンドル部分のみ反応させる
+            handle: '.drag-handle',
             animation: 150, 
-            disabled: true, // 最初は無効化
+            disabled: true,
             onEnd: function() { 
                 lineOrder = Array.from(el.querySelectorAll('.line-container')).map(item => item.id); 
             } 
         });
     }
 
-    // モーダル・ロジック
     function openConfirmModal(title, text, confirmColor, callback) {
         document.getElementById('modalTitle').innerText = title;
         document.getElementById('modalText').innerText = text;
@@ -199,7 +233,16 @@ body {
     function addNewLine(name) { 
         const id = 'line-' + Date.now();
         dataStore[id] = { name: name, started: false, logs: [], targetTime: "", collapsed: false };
-        lineOrder.unshift(id); saveData(); refreshList();
+        lineOrder.unshift(id); 
+        saveData(); 
+        refreshList();
+        setTimeout(() => {
+            const input = document.getElementById(id + '-startInput');
+            if(input) {
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                input.focus();
+            }
+        }, 300);
     }
 
     function renderLine(id, data) {
@@ -222,7 +265,7 @@ body {
                 </header>
                 <div class="line-body">
                     <div id="${id}-setup" class="controls" style="display: ${data.started ? 'none' : 'flex'}">
-                        <input type="number" id="${id}-startInput" placeholder="開始残数" pattern="\\d*" style="flex-grow:1;">
+                        <input type="number" id="${id}-startInput" placeholder="開始残数" inputmode="numeric" pattern="\\d*" style="flex-grow:1;">
                         <button class="btn-blue" style="width:auto; margin:0; height:36px; padding:0 15px;" onclick="startLine('${id}')">開始</button>
                     </div>
                     <div id="${id}-main" style="display: ${data.started ? 'block' : 'none'}">
@@ -231,7 +274,7 @@ body {
                             <button class="btn-gray" onclick="setTargetTime('${id}', '')" style="padding:4px 8px">目標解除</button>
                         </div>
                         <div class="controls">
-                            <input type="number" id="${id}-currInput" placeholder="残数" pattern="\\d*">
+                            <input type="number" id="${id}-currInput" placeholder="残数" inputmode="numeric" pattern="\\d*">
                             <button class="btn-record" onclick="record('${id}')">記録</button>
                             <div class="prediction-display">
                                 <span style="font-size:7px;">終了予測</span>
@@ -260,25 +303,38 @@ body {
 
     function setTargetTime(id, val) { dataStore[id].targetTime = val; saveData(); updateStats(id); }
     function toggleTarget(id) { const el = document.getElementById(id + '-targetSetup'); el.style.display = (el.style.display === 'flex') ? 'none' : 'flex'; }
-    function startLine(id) { const input = document.getElementById(id + '-startInput'); const val = parseInt(input.value); if (isNaN(val)) return; dataStore[id].started = true; dataStore[id].logs = [{ rem: val, ts: Date.now() }]; saveData(); refreshLineOnly(id); document.getElementById(id + '-setup').style.display = 'none'; document.getElementById(id + '-main').style.display = 'block'; }
+    
+    function startLine(id) { 
+        const input = document.getElementById(id + '-startInput'); 
+        const val = parseInt(input.value); 
+        if (isNaN(val)) return; 
+        dataStore[id].started = true; 
+        dataStore[id].logs = [{ rem: val, ts: Date.now() }]; 
+        saveData(); 
+        refreshList(); 
+        setTimeout(() => {
+            const nextInput = document.getElementById(id + '-currInput');
+            if(nextInput) nextInput.focus();
+        }, 100);
+    }
+    
     function record(id) { const input = document.getElementById(id + '-currInput'); const curr = parseInt(input.value); if (isNaN(curr)) return; dataStore[id].logs.push({ rem: curr, ts: Date.now() }); saveData(); refreshLineOnly(id); input.value = ""; }
- // 各入力欄でEnterキー（確定）が押された時の処理
+
 document.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         const activeEl = document.activeElement;
-        // もし今、残数入力欄（currInput）にフォーカスがあれば
         if (activeEl && activeEl.id.endsWith('-currInput')) {
             const lineId = activeEl.id.replace('-currInput', '');
-            record(lineId); // 記録を実行
-            activeEl.blur(); // キーボードを閉じる（連続入力したい場合はここを消す）
+            record(lineId);
+            activeEl.blur();
         }
-        // もし開始残数入力欄（startInput）にフォーカスがあれば
         if (activeEl && activeEl.id.endsWith('-startInput')) {
             const lineId = activeEl.id.replace('-startInput', '');
-            startLine(lineId); // 開始を実行
+            startLine(lineId);
         }
     }
 });
+
     function refreshLineOnly(id) {
         const ds = dataStore[id]; const tbody = document.getElementById(id + '-log'); tbody.innerHTML = "";
         ds.logs.forEach((log, i) => {
@@ -302,8 +358,10 @@ document.addEventListener('keypress', function (e) {
     function updateStats(id) {
         const ds = dataStore[id]; if (!ds.started || ds.logs.length === 0) return;
         const last = ds.logs[ds.logs.length-1]; const avg = (ds.logs[0].rem - last.rem) / ((last.ts - ds.logs[0].ts) / 3600000);
-        document.getElementById(id+'-headTotal').innerText = isFinite(avg) ? avg.toFixed(1) : "0.0";
-        document.getElementById(id+'-eta').innerText = avg > 0 ? fmtTime(new Date(last.ts + (last.rem / avg) * 3600000)) : "--:--";
+        const headTotal = document.getElementById(id+'-headTotal');
+        if (headTotal) headTotal.innerText = isFinite(avg) ? avg.toFixed(1) : "0.0";
+        const eta = document.getElementById(id+'-eta');
+        if (eta) eta.innerText = avg > 0 ? fmtTime(new Date(last.ts + (last.rem / avg) * 3600000)) : "--:--";
     }
 
     function startFullResetFlow() {
@@ -317,4 +375,3 @@ document.addEventListener('keypress', function (e) {
 </script>
 </body>
 </html>
-

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v8.2</title>
+    <title>武蔵野 生産性管理 v8.3</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -338,6 +338,36 @@
             color: #92400e;
         }
 
+        .stats-summary-row {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 6px;
+        }
+
+        .prediction-display.p-ten {
+            background: linear-gradient(to right, #ecfdf5, #d1fae5);
+        }
+
+        .prediction-display.p-ten span:first-child {
+            color: #065f46;
+        }
+
+        .prediction-display.p-ten .eta-time {
+            color: #047857;
+        }
+
+        .prediction-display.p-target {
+            background: linear-gradient(to right, #f0f9ff, #e0f2fe);
+        }
+
+        .prediction-display.p-target span:first-child {
+            color: #0369a1;
+        }
+
+        .prediction-display.p-target .eta-time {
+            color: #0284c7;
+        }
+
         .target-setup-area {
             background: #f8fafc;
             padding: 6px;
@@ -646,7 +676,7 @@
     <div id="linesContainer"></div>
 
     <div class="system-footer">
-        <div class="credit">Developed by: 埼玉工場 加工1F 西 <span style="margin-left:6px; opacity:0.6;">Ver 8.2</span></div>
+        <div class="credit">Developed by: 埼玉工場 加工1F 西 <span style="margin-left:6px; opacity:0.6;">Ver 8.3</span></div>
         <button class="btn-day-close" onclick="closeDayFlow()">🌅 業務終了 (日次締め)</button>
         <button class="btn-csv" onclick="exportCSV()">📊 履歴をCSVで出力</button>
         <button class="btn-full-reset" onclick="startFullResetFlow()">⚠️ 全てのデータを削除して初期化</button>
@@ -797,6 +827,7 @@
                     </div>
                     <div class="header-actions">
                         <div class="status-badge">平均:<span id="${id}-headTotal" style="margin-left:2px;">0.0</span></div>
+                        <div class="status-badge" id="${id}-targetSpeedArea" style="display:none; background:#ecfdf5; color:var(--success); border-color:#a7f3d0;">目標必要:<span id="${id}-targetSpeed" style="margin-left:2px;">--</span></div>
                         <button class="btn-sm btn-orange" onclick="toggleTarget('${id}')">目標</button>
                         <button class="btn-sm btn-gray" onclick="openConfirmModal('リセット', 'このラインをリセットしますか？', '#64748b', () => { dataStore['${id}'].started=false; dataStore['${id}'].logs=[]; saveData(); refreshList(); })">RST</button>
                         <button class="btn-sm btn-red" onclick="openConfirmModal('削除', '削除しますか？', '#ef4444', () => { delete dataStore['${id}']; lineOrder=lineOrder.filter(l => l!=='${id}'); saveData(); refreshList(); })">×</button>
@@ -814,13 +845,17 @@
                             <button class="btn-sm btn-gray" style="height:32px; border-radius:6px;" onclick="setTargetTime('${id}', '')">消去</button>
                         </div>
                         <div class="controls">
-                            <input type="number" id="${id}-currInput" placeholder="残数" inputmode="numeric" pattern="\\d*">
-                            <button class="btn-record" onclick="record('${id}')">記録</button>
-                            <div class="prediction-display">
-                                <span>予測</span>
+                            <input type="number" id="${id}-currInput" placeholder="残数" inputmode="numeric" pattern="\\d*" style="width: 55px; flex-shrink: 0;">
+                            <button class="btn-record" onclick="record('${id}')" style="flex-shrink: 0; padding: 0 6px;">記録</button>
+                            <div class="prediction-display" style="flex-grow: 1; min-width: 50px;">
+                                <span>予測(平均)</span>
                                 <span class="eta-time" id="${id}-eta">--:--</span>
                             </div>
-                            <button class="btn-break" onclick="promptBreak('${id}')">休</button>
+                            <div class="prediction-display p-ten" style="flex-grow: 1; min-width: 50px;">
+                                <span>予測(直近)</span>
+                                <span class="eta-time" id="${id}-eta10">--:--</span>
+                            </div>
+                            <button class="btn-break" onclick="promptBreak('${id}')" style="flex-shrink: 0; width: 34px;">休</button>
                         </div>
                         <table>
                             <thead>
@@ -915,9 +950,18 @@
             const ds = dataStore[id];
             if (!ds.started || ds.logs.length === 0) return;
             const remLogs = ds.logs.filter(l => l.type !== 'break');
+
+            const headTotal = document.getElementById(id + '-headTotal');
+            const eta = document.getElementById(id + '-eta');
+            const eta10 = document.getElementById(id + '-eta10');
+            const targetSpeedArea = document.getElementById(id + '-targetSpeedArea');
+            const targetSpeed = document.getElementById(id + '-targetSpeed');
+
             if (remLogs.length < 2) {
-                const headTotal = document.getElementById(id + '-headTotal'); if (headTotal) headTotal.innerText = "0.0";
-                const eta = document.getElementById(id + '-eta'); if (eta) eta.innerText = "--:--";
+                if (headTotal) headTotal.innerText = "0.0";
+                if (eta) eta.innerText = "--:--";
+                if (eta10) eta10.innerText = "--:--";
+                updateTargetSpeed(id, remLogs[remLogs.length - 1], targetSpeedArea, targetSpeed);
                 return;
             }
 
@@ -932,15 +976,75 @@
             let elapsedMs = last.ts - first.ts - breakSumMs; if (elapsedMs <= 0) elapsedMs = 1;
 
             const avg = (first.rem - last.rem) / (elapsedMs / 3600000);
-            const headTotal = document.getElementById(id + '-headTotal');
             if (headTotal) headTotal.innerText = isFinite(avg) && avg > 0 ? avg.toFixed(1) : "0.0";
 
-            const eta = document.getElementById(id + '-eta');
             if (eta) {
                 if (avg > 0) {
                     const remainingHours = last.rem / avg;
                     eta.innerText = fmtTime(new Date(last.ts + breakAfterLastMs + remainingHours * 3600000));
                 } else eta.innerText = "--:--";
+            }
+
+            // 直近10分間の生産性とETAの計算
+            let rFirst = null;
+            for (let j = remLogs.length - 2; j >= 0; j--) {
+                if (last.ts - remLogs[j].ts >= 10 * 60 * 1000) {
+                    rFirst = remLogs[j];
+                    break;
+                }
+            }
+            if (!rFirst) {
+                rFirst = first;
+            }
+
+            if (rFirst && rFirst !== last) {
+                let breakSum10Ms = 0;
+                ds.logs.forEach(l => {
+                    if (l.type === 'break' && l.ts >= rFirst.ts && l.ts <= last.ts) {
+                        breakSum10Ms += l.duration * 60000;
+                    }
+                });
+                let elapsed10Ms = last.ts - rFirst.ts - breakSum10Ms;
+                if (elapsed10Ms <= 0) elapsed10Ms = 1;
+                const avg10 = (rFirst.rem - last.rem) / (elapsed10Ms / 3600000);
+
+                if (eta10) {
+                    if (avg10 > 0) {
+                        const remainingHours10 = last.rem / avg10;
+                        eta10.innerText = fmtTime(new Date(last.ts + breakAfterLastMs + remainingHours10 * 3600000));
+                    } else {
+                        eta10.innerText = "--:--";
+                    }
+                }
+            } else {
+                if (eta10 && eta) eta10.innerText = eta.innerText;
+            }
+
+            updateTargetSpeed(id, last, targetSpeedArea, targetSpeed);
+        }
+
+        function updateTargetSpeed(id, lastLog, targetSpeedArea, targetSpeed) {
+            const ds = dataStore[id];
+            if (ds.targetTime && lastLog) {
+                const p = ds.targetTime.split(/[:：]/);
+                if (p.length >= 2) {
+                    const targetDate = new Date();
+                    targetDate.setHours(p[0], p[1], 0, 0);
+                    
+                    const now = Date.now();
+                    const remainingMs = targetDate.getTime() - now;
+                    
+                    if (remainingMs <= 0) {
+                        if (targetSpeed) targetSpeed.innerText = "時間超過";
+                    } else {
+                        const remainingHours = remainingMs / 3600000;
+                        const reqAvg = lastLog.rem / remainingHours;
+                        if (targetSpeed) targetSpeed.innerText = reqAvg.toFixed(1);
+                    }
+                    if (targetSpeedArea) targetSpeedArea.style.display = 'inline-block';
+                }
+            } else {
+                if (targetSpeedArea) targetSpeedArea.style.display = 'none';
             }
         }
 

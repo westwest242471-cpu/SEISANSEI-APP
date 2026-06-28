@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>武蔵野 生産性管理 v8.3</title>
+    <title>武蔵野 生産性管理 v8.4</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -676,7 +676,7 @@
     <div id="linesContainer"></div>
 
     <div class="system-footer">
-        <div class="credit">Developed by: 埼玉工場 加工1F 西 <span style="margin-left:6px; opacity:0.6;">Ver 8.3</span></div>
+        <div class="credit">Developed by: 埼玉工場 加工1F 西 <span style="margin-left:6px; opacity:0.6;">Ver 8.4</span></div>
         <button class="btn-day-close" onclick="closeDayFlow()">🌅 業務終了 (日次締め)</button>
         <button class="btn-csv" onclick="exportCSV()">📊 履歴をCSVで出力</button>
         <button class="btn-full-reset" onclick="startFullResetFlow()">⚠️ 全てのデータを削除して初期化</button>
@@ -845,13 +845,13 @@
                             <button class="btn-sm btn-gray" style="height:32px; border-radius:6px;" onclick="setTargetTime('${id}', '')">消去</button>
                         </div>
                         <div class="controls">
-                            <input type="number" id="${id}-currInput" placeholder="残数" inputmode="numeric" pattern="\\d*" style="width: 55px; flex-shrink: 0;">
-                            <button class="btn-record" onclick="record('${id}')" style="flex-shrink: 0; padding: 0 6px;">記録</button>
-                            <div class="prediction-display" style="flex-grow: 1; min-width: 50px;">
+                            <input type="number" id="${id}-currInput" placeholder="残数" inputmode="numeric" pattern="\\d*" style="width: 100px; flex-shrink: 0;">
+                            <button class="btn-record" onclick="record('${id}')" style="width: 60px; flex-shrink: 0; padding: 0;">記録</button>
+                            <div class="prediction-display" style="flex-grow: 1; min-width: 45px;">
                                 <span>予測(平均)</span>
                                 <span class="eta-time" id="${id}-eta">--:--</span>
                             </div>
-                            <div class="prediction-display p-ten" style="flex-grow: 1; min-width: 50px;">
+                            <div class="prediction-display p-ten" style="flex-grow: 1; min-width: 45px;">
                                 <span>予測(直近)</span>
                                 <span class="eta-time" id="${id}-eta10">--:--</span>
                             </div>
